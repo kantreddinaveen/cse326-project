@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Personal Reading and Learning Tracker for books, PDFs, YouTube playlists, newspapers and LeetCode problem sets.">
+  <title>Personal Reading &amp; Learning Tracker</title>
+
+  <!-- External stylesheet (will be created in the CSS step) -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body id="app-body">
+
+  <!-- ==========================================================
+       BLOCK 1: SITE HEADER AND MAIN NAVIGATION
+       ========================================================== -->
+  <header id="site-header" class="site-header">
+    <h1 id="site-title" class="site-title">Personal Reading &amp; Learning Tracker</h1>
+    <p id="site-tagline" class="site-tagline">Track books, PDFs, YouTube playlists, newspapers and LeetCode problem sets in one place.</p>
+
+    <nav id="main-nav" class="main-nav" aria-label="Main navigation">
+      <ul id="main-nav-list" class="main-nav-list">
+        <li class="main-nav-item"><a id="nav-goals" class="main-nav-link" href="#goals-section">Goals</a></li>
+        <li class="main-nav-item"><a id="nav-add" class="main-nav-link" href="#add-resource-section">Add Resource</a></li>
+        <li class="main-nav-item"><a id="nav-shelves" class="main-nav-link" href="#shelves-section">Shelves</a></li>
+        <li class="main-nav-item"><a id="nav-quotes" class="main-nav-link" href="#quotes-section">Quotes</a></li>
+        <li class="main-nav-item"><a id="nav-calendar" class="main-nav-link" href="#calendar-section">Calendar</a></li>
+        <li class="main-nav-item"><a id="nav-assignments" class="main-nav-link" href="#assignments-section">Assignments</a></li>
+        <li class="main-nav-item"><a id="nav-notes" class="main-nav-link" href="#notepad-section">Notepad</a></li>
+        <li class="main-nav-item"><a id="nav-timer" class="main-nav-link" href="#pomodoro-section">Timer</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" class="main-content">
+
+    <!-- ==========================================================
+         BLOCK 2: ANNUAL GOALS DASHBOARD (2026)
+         Goal input, completion counters and progress bar
+         ========================================================== -->
+    <section id="goals-section" class="dashboard-section goals-section">
+      <h2 id="goals-heading" class="section-heading">Annual Goals Dashboard 2026</h2>
+
+      <form id="goal-form" class="goal-form" novalidate>
+        <fieldset id="goal-fieldset" class="form-fieldset">
+          <legend id="goal-legend" class="form-legend">Set your 2026 goal</legend>
+
+          <div class="form-group">
+            <label id="goal-label" class="form-label" for="goal-input">Resources I want to complete in 2026</label>
+            <input type="number" id="goal-input" class="form-input goal-input" name="goalTarget" min="1" max="1000" placeholder="e.g. 24">
+          </div>
+
+          <button type="submit" id="goal-submit-button" class="button button-primary goal-submit-button">Save Goal</button>
+          <button type="button" id="goal-reset-button" class="button button-secondary goal-reset-button">Clear Goal</button>
+        </fieldset>
+        <p id="goal-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+
+      <!-- Completion counters -->
+      <div id="goal-counters" class="goal-counters">
+        <p class="counter-item">Goal: <strong id="goal-target-count" class="counter-value">0</strong></p>
+        <p class="counter-item">Completed: <strong id="goal-completed-count" class="counter-value">0</strong></p>
+        <p class="counter-item">Remaining: <strong id="goal-remaining-count" class="counter-value">0</strong></p>
+      </div>
+
+      <!-- Goal progress bar -->
+      <div id="goal-progress-wrapper" class="goal-progress-wrapper">
+        <label id="goal-progress-label" class="form-label" for="goal-progress-bar">Goal progress</label>
+        <progress id="goal-progress-bar" class="goal-progress-bar" value="0" max="100">0%</progress>
+        <output id="goal-progress-percent" class="goal-progress-percent" for="goal-progress-bar">0%</output>
+      </div>
+      <p id="goal-status-message" class="status-message" aria-live="polite">No goal set yet.</p>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 3: ADD RESOURCE FORM
+         Title, media type, creator, shelf, total units, progress, due date
+         ========================================================== -->
+    <section id="add-resource-section" class="form-section add-resource-section">
+      <h2 id="add-resource-heading" class="section-heading">Add a Resource</h2>
+
+      <form id="resource-form" class="resource-form" novalidate>
+
+        <!-- Group A: basic details -->
+        <fieldset id="resource-details-fieldset" class="form-fieldset">
+          <legend id="resource-details-legend" class="form-legend">Basic details</legend>
+
+          <div class="form-group">
+            <label id="resource-title-label" class="form-label" for="resource-title-input">Title</label>
+            <input type="text" id="resource-title-input" class="form-input" name="title" placeholder="e.g. Clean Code">
+          </div>
+
+          <div class="form-group">
+            <label id="resource-media-label" class="form-label" for="resource-media-select">Media type</label>
+            <select id="resource-media-select" class="form-select" name="mediaType">
+              <option value="">Select media type</option>
+              <option value="book">Physical Book</option>
+              <option value="pdf">PDF</option>
+              <option value="youtube">YouTube Playlist</option>
+              <option value="newspaper">Newspaper</option>
+              <option value="leetcode">LeetCode Problem Set</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="resource-creator-label" class="form-label" for="resource-creator-input">Author / Creator</label>
+            <input type="text" id="resource-creator-input" class="form-input" name="creator" placeholder="Author, channel or publisher">
+          </div>
+        </fieldset>
+
+        <!-- Group B: shelf, units and progress -->
+        <fieldset id="resource-progress-fieldset" class="form-fieldset">
+          <legend id="resource-progress-legend" class="form-legend">Shelf and progress</legend>
+
+          <div class="form-group">
+            <label id="resource-shelf-label" class="form-label" for="resource-shelf-select">Shelf</label>
+            <select id="resource-shelf-select" class="form-select" name="shelf">
+              <option value="reading">Reading (Active)</option>
+              <option value="completed">Completed (Finished)</option>
+              <option value="wishlist">Wishlist (Saved for later)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="resource-total-label" class="form-label" for="resource-total-input">Total units (pages / videos / issues / problems)</label>
+            <input type="number" id="resource-total-input" class="form-input" name="totalUnits" min="1" placeholder="e.g. 350">
+          </div>
+
+          <div class="form-group">
+            <label id="resource-current-label" class="form-label" for="resource-current-input">Current progress (units done)</label>
+            <input type="number" id="resource-current-input" class="form-input" name="currentProgress" min="0" value="0">
+          </div>
+
+          <div class="form-group">
+            <label id="resource-due-label" class="form-label" for="resource-due-input">Due date (optional)</label>
+            <input type="date" id="resource-due-input" class="form-input" name="dueDate">
+          </div>
+        </fieldset>
+
+        <div id="resource-form-actions" class="form-actions">
+          <button type="submit" id="resource-submit-button" class="button button-primary">Add Resource</button>
+          <button type="reset" id="resource-reset-button" class="button button-secondary">Reset Form</button>
+        </div>
+        <p id="resource-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 4: VIRTUAL SHELVES
+         Filter buttons plus Reading, Completed and Wishlist containers
+         ========================================================== -->
+    <section id="shelves-section" class="shelves-section">
+      <h2 id="shelves-heading" class="section-heading">Virtual Shelves</h2>
+
+      <!-- Shelf filter buttons -->
+      <div id="shelf-filter-group" class="filter-group" role="group" aria-label="Filter shelves">
+        <button type="button" id="filter-all-button" class="button filter-button active" data-filter="all">All</button>
+        <button type="button" id="filter-reading-button" class="button filter-button" data-filter="reading">Reading</button>
+        <button type="button" id="filter-completed-button" class="button filter-button" data-filter="completed">Completed</button>
+        <button type="button" id="filter-wishlist-button" class="button filter-button" data-filter="wishlist">Wishlist</button>
+      </div>
+
+      <div id="shelves-grid" class="shelves-grid">
+
+        <!-- Shelf 1: Reading (Active) -->
+        <section id="shelf-reading" class="shelf shelf-reading" data-shelf="reading">
+          <h3 id="shelf-reading-heading" class="shelf-heading">Reading (Active) <span id="shelf-reading-count" class="shelf-count">0</span></h3>
+          <div id="reading-list" class="resource-list"></div>
+          <p id="reading-empty-message" class="empty-message">Nothing on this shelf yet.</p>
+        </section>
+
+        <!-- Shelf 2: Completed (Finished) -->
+        <section id="shelf-completed" class="shelf shelf-completed" data-shelf="completed">
+          <h3 id="shelf-completed-heading" class="shelf-heading">Completed (Finished) <span id="shelf-completed-count" class="shelf-count">0</span></h3>
+          <div id="completed-list" class="resource-list"></div>
+          <p id="completed-empty-message" class="empty-message">Nothing on this shelf yet.</p>
+        </section>
+
+        <!-- Shelf 3: Wishlist (Saved for later) -->
+        <section id="shelf-wishlist" class="shelf shelf-wishlist" data-shelf="wishlist">
+          <h3 id="shelf-wishlist-heading" class="shelf-heading">Wishlist (Saved for later) <span id="shelf-wishlist-count" class="shelf-count">0</span></h3>
+          <div id="wishlist-list" class="resource-list"></div>
+          <p id="wishlist-empty-message" class="empty-message">Nothing on this shelf yet.</p>
+        </section>
+
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 5: PERMANENT QUOTE LOG
+         Quote input form and display container
+         ========================================================== -->
+    <section id="quotes-section" class="quotes-section">
+      <h2 id="quotes-heading" class="section-heading">Permanent Quote Log</h2>
+
+      <form id="quote-form" class="quote-form" novalidate>
+        <fieldset id="quote-fieldset" class="form-fieldset">
+          <legend id="quote-legend" class="form-legend">Save a quote</legend>
+
+          <div class="form-group">
+            <label id="quote-resource-label" class="form-label" for="quote-resource-select">From resource</label>
+            <select id="quote-resource-select" class="form-select" name="quoteResource">
+              <option value="">Select a resource</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="quote-text-label" class="form-label" for="quote-text-input">Quote</label>
+            <textarea id="quote-text-input" class="form-textarea" name="quoteText" rows="3" placeholder="Type the quote here"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label id="quote-citation-label" class="form-label" for="quote-citation-input">Citation (author / source)</label>
+            <input type="text" id="quote-citation-input" class="form-input" name="quoteCitation" placeholder="e.g. Robert C. Martin, Clean Code">
+          </div>
+
+          <div class="form-group">
+            <label id="quote-location-label" class="form-label" for="quote-location-input">Page number or video timestamp</label>
+            <input type="text" id="quote-location-input" class="form-input" name="quoteLocation" placeholder="e.g. Page 45 or 12:30">
+          </div>
+
+          <button type="submit" id="quote-submit-button" class="button button-primary">Save Quote</button>
+        </fieldset>
+        <p id="quote-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+
+      <!-- Quote display container -->
+      <div id="quotes-display" class="quotes-display">
+        <ul id="quotes-list" class="quotes-list"></ul>
+        <p id="quotes-empty-message" class="empty-message">No quotes saved yet.</p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 6: PERSONAL STUDY CALENDAR
+         Target due dates and deadlines
+         ========================================================== -->
+    <section id="calendar-section" class="calendar-section">
+      <h2 id="calendar-heading" class="section-heading">Personal Study Calendar</h2>
+
+      <form id="deadline-form" class="deadline-form" novalidate>
+        <fieldset id="deadline-fieldset" class="form-fieldset">
+          <legend id="deadline-legend" class="form-legend">Add a deadline</legend>
+
+          <div class="form-group">
+            <label id="deadline-title-label" class="form-label" for="deadline-title-input">Deadline title</label>
+            <input type="text" id="deadline-title-input" class="form-input" name="deadlineTitle" placeholder="e.g. Finish Chapter 5">
+          </div>
+
+          <div class="form-group">
+            <label id="deadline-resource-label" class="form-label" for="deadline-resource-select">Related resource (optional)</label>
+            <select id="deadline-resource-select" class="form-select" name="deadlineResource">
+              <option value="">None</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="deadline-date-label" class="form-label" for="deadline-date-input">Target date</label>
+            <input type="date" id="deadline-date-input" class="form-input" name="deadlineDate">
+          </div>
+
+          <button type="submit" id="deadline-submit-button" class="button button-primary">Add Deadline</button>
+        </fieldset>
+        <p id="deadline-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+
+      <ul id="deadline-list" class="deadline-list"></ul>
+      <p id="deadline-empty-message" class="empty-message">No deadlines added yet.</p>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 7: PENDING ASSIGNMENTS CHECKLIST
+         Sub-task input, priority selector, completion checkboxes
+         ========================================================== -->
+    <section id="assignments-section" class="assignments-section">
+      <h2 id="assignments-heading" class="section-heading">Pending Assignments Checklist</h2>
+
+      <form id="task-form" class="task-form" novalidate>
+        <fieldset id="task-fieldset" class="form-fieldset">
+          <legend id="task-legend" class="form-legend">Add a sub-task</legend>
+
+          <div class="form-group">
+            <label id="task-title-label" class="form-label" for="task-title-input">Task</label>
+            <input type="text" id="task-title-input" class="form-input" name="taskTitle" placeholder="e.g. Submit lab report">
+          </div>
+
+          <div class="form-group">
+            <label id="task-priority-label" class="form-label" for="task-priority-select">Priority</label>
+            <select id="task-priority-select" class="form-select" name="taskPriority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <button type="submit" id="task-submit-button" class="button button-primary">Add Task</button>
+        </fieldset>
+        <p id="task-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+
+      <p id="task-summary" class="task-summary">Pending tasks: <strong id="task-pending-count" class="counter-value">0</strong></p>
+      <ul id="task-list" class="task-list"></ul>
+      <p id="task-empty-message" class="empty-message">No tasks yet.</p>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 8: ROUGH DRAFT NOTEPAD
+         Workspace for quick, unfinished notes
+         ========================================================== -->
+    <section id="notepad-section" class="notepad-section">
+      <h2 id="notepad-heading" class="section-heading">Rough Draft Notepad</h2>
+
+      <form id="notepad-form" class="notepad-form">
+        <label id="notepad-label" class="form-label" for="notepad-textarea">Quick lecture / study notes</label>
+        <textarea id="notepad-textarea" class="form-textarea notepad-textarea" name="draftNotes" rows="8" placeholder="Jot down rough notes here..."></textarea>
+
+        <div id="notepad-actions" class="form-actions">
+          <button type="button" id="notepad-save-button" class="button button-primary">Save Notes</button>
+          <button type="button" id="notepad-clear-button" class="button button-secondary">Clear Notes</button>
+        </div>
+        <p id="notepad-status-message" class="status-message" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 9: POMODORO STUDY TIMER
+         25:00 display with Start, Pause and Reset
+         ========================================================== -->
+    <section id="pomodoro-section" class="pomodoro-section">
+      <h2 id="pomodoro-heading" class="section-heading">Pomodoro Study Timer</h2>
+
+      <article id="pomodoro-card" class="pomodoro-card">
+        <p id="timer-mode-label" class="timer-mode-label">Focus session</p>
+        <div id="timer-display" class="timer-display" role="timer" aria-live="off">25:00</div>
+
+        <div id="timer-controls" class="timer-controls">
+          <button type="button" id="timer-start-button" class="button button-primary">Start</button>
+          <button type="button" id="timer-pause-button" class="button button-secondary">Pause</button>
+          <button type="button" id="timer-reset-button" class="button button-secondary">Reset</button>
+        </div>
+        <p id="timer-status-message" class="status-message" aria-live="polite">Ready to focus.</p>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================
+       BLOCK 10: SITE FOOTER
+       ========================================================== -->
+  <footer id="site-footer" class="site-footer">
+    <p id="footer-text" class="footer-text">CSE326 Internet Programming | Personal Reading &amp; Learning Tracker | 2026</p>
+  </footer>
+
+  <!-- ==========================================================
+       BLOCK 11: HTML TEMPLATES (hidden blueprints)
+       JavaScript will clone these to create cards and list items
+       ========================================================== -->
+
+  <!-- Template: one resource card with page progress slider -->
+  <template id="resource-card-template">
+    <article class="resource-card" data-resource-id="">
+      <header class="resource-card-header">
+        <h4 class="resource-title"></h4>
+        <span class="resource-media-badge"></span>
+      </header>
+
+      <p class="resource-creator"></p>
+      <p class="resource-due">Due: <time class="resource-due-date"></time></p>
+
+      <div class="resource-progress-area">
+        <label class="progress-slider-label">
+          Progress
+          <input type="range" class="progress-slider" min="0" max="100" value="0">
+        </label>
+        <output class="progress-output">0 / 0</output>
+      </div>
+
+      <div class="resource-card-actions">
+        <label class="move-shelf-label">
+          Move to
+          <select class="move-shelf-select">
+            <option value="reading">Reading</option>
+            <option value="completed">Completed</option>
+            <option value="wishlist">Wishlist</option>
+          </select>
+        </label>
+        <button type="button" class="button button-danger delete-resource-button">Delete</button>
+      </div>
+    </article>
+  </template>
+
+  <!-- Template: one saved quote with citation and timestamp -->
+  <template id="quote-item-template">
+    <li class="quote-item" data-quote-id="">
+      <blockquote class="quote-body">
+        <p class="quote-text"></p>
+        <footer class="quote-meta">
+          <cite class="quote-citation"></cite>
+          <span class="quote-location"></span>
+          <span class="quote-resource-name"></span>
+          <time class="quote-timestamp"></time>
+        </footer>
+      </blockquote>
+      <button type="button" class="button button-danger delete-quote-button">Delete</button>
+    </li>
+  </template>
+
+  <!-- Template: one calendar deadline -->
+  <template id="deadline-item-template">
+    <li class="deadline-item" data-deadline-id="">
+      <strong class="deadline-title"></strong>
+      <time class="deadline-date"></time>
+      <span class="deadline-resource"></span>
+      <span class="deadline-countdown"></span>
+      <button type="button" class="button button-danger delete-deadline-button">Delete</button>
+    </li>
+  </template>
+
+  <!-- Template: one checklist task with priority and checkbox -->
+  <template id="task-item-template">
+    <li class="task-item" data-task-id="">
+      <input type="checkbox" class="task-checkbox">
+      <span class="task-title"></span>
+      <span class="task-priority-badge"></span>
+      <button type="button" class="button button-danger delete-task-button">Delete</button>
+    </li>
+  </template>
+
+  <!-- JavaScript file (will be created in the JavaScript step) -->
+  <script src="script.js"></script>
+</body>
+</html>
