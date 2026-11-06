@@ -7,7 +7,1319 @@
   <title>Personal Reading &amp; Learning Tracker</title>
 
   <!-- External stylesheet (will be created in the CSS step) -->
-  <link rel="stylesheet" href="style.css">
+  <style>
+/* =========================================================
+   Personal Reading & Learning Tracker  |  style.css
+   CSE326 Internet Programming
+   ========================================================= */
+
+
+/* =========================================================
+   1. DESIGN TOKENS (colors, radius, shadows, spacing)
+   Change a value here and it updates everywhere.
+   ========================================================= */
+:root {
+  /* Brand and surface colors */
+  --color-primary: #4f46e5;
+  --color-primary-dark: #4338ca;
+  --color-primary-soft: #eef2ff;
+  --color-bg: #f3f5fb;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-text: #1f2937;
+  --color-muted: #6b7280;
+  --color-border: #e2e8f0;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+
+  /* Media type badge colors */
+  --badge-book: #1e3a8a;        /* deep blue */
+  --badge-pdf: #dc143c;         /* crimson red */
+  --badge-youtube: #7f1d1d;     /* dark red */
+  --badge-newspaper: #0f766e;   /* teal */
+  --badge-leetcode: #f5a623;    /* orange / gold */
+
+  /* Shape and depth */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 10px 28px rgba(15, 23, 42, 0.16);
+
+  /* Typography and motion */
+  --font-main: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-digital: "Courier New", ui-monospace, "SF Mono", Consolas, monospace;
+  --transition: 0.2s ease;
+
+  /* Dropdown arrow icon (used by every select) */
+  --chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+}
+
+
+/* =========================================================
+   2. RESET AND BASE STYLES
+   ========================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+h1, h2, h3, h4, p, blockquote {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Utility class: JavaScript adds "hidden" to hide something */
+.hidden {
+  display: none !important;
+}
+
+
+/* =========================================================
+   3. STICKY HEADER AND NAVIGATION BAR
+   ========================================================= */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "title nav"
+    "tagline nav";
+  align-items: center;
+  column-gap: 2rem;
+  row-gap: 0.1rem;
+  padding: 0.75rem 1.5rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #312e81, #4f46e5);
+  box-shadow: var(--shadow-md);
+}
+
+.site-title {
+  grid-area: title;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.site-tagline {
+  grid-area: tagline;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.main-nav {
+  grid-area: nav;
+}
+
+.main-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.main-nav-link {
+  display: block;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #e0e7ff;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: var(--radius-pill);
+  transition: background var(--transition), color var(--transition);
+}
+
+.main-nav-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.main-nav-link:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Active tab indicator (JavaScript will add the "active" class later) */
+.main-nav-link.active,
+.main-nav-link[aria-current="page"] {
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* =========================================================
+   4. MAIN PAGE LAYOUT (desktop grid)
+   Uses the section IDs from index.html
+   ========================================================= */
+.main-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "goals    timer"
+    "add      add"
+    "shelves  shelves"
+    "quotes   notes"
+    "calendar tasks";
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+#goals-section        { grid-area: goals; }
+#pomodoro-section     { grid-area: timer; }
+#add-resource-section { grid-area: add; }
+#shelves-section      { grid-area: shelves; }
+#quotes-section       { grid-area: quotes; }
+#notepad-section      { grid-area: notes; }
+#calendar-section     { grid-area: calendar; }
+#assignments-section  { grid-area: tasks; }
+
+/* Every section looks like a white dashboard card */
+.main-content > section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  padding: 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  scroll-margin-top: 140px; /* keeps anchor jumps from hiding under the sticky header */
+}
+
+/* The shelves section only holds the three shelf cards, so it stays transparent */
+#shelves-section {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.section-heading {
+  padding-left: 0.7rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-left: 4px solid var(--color-primary);
+}
+
+
+/* =========================================================
+   5. FORMS AND CONTROLS
+   ========================================================= */
+.form-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem 1.1rem 1.1rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.form-legend {
+  padding: 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-primary-dark);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  font: inherit;
+  color: var(--color-text);
+  background: #ffffff;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Focus highlight */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* Custom dropdown select */
+.form-select,
+.move-shelf-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: var(--chevron-icon);
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 14px;
+}
+
+.form-select {
+  padding-right: 2.2rem;
+}
+
+.form-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.2rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  transition: transform var(--transition), box-shadow var(--transition),
+              background var(--transition), color var(--transition);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.button:focus-visible {
+  outline: 3px solid rgba(79, 70, 229, 0.45);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.button-primary {
+  color: #ffffff;
+  background: var(--color-primary);
+}
+
+.button-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.button-secondary {
+  color: var(--color-primary-dark);
+  background: #ffffff;
+  border-color: #c7d2fe;
+}
+
+.button-secondary:hover {
+  background: var(--color-primary-soft);
+}
+
+.button-danger {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+  background: #ffffff;
+  border-color: #fecaca;
+}
+
+.button-danger:hover {
+  color: #ffffff;
+  background: var(--color-danger);
+}
+
+.form-fieldset > .button {
+  align-self: flex-start;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Messages */
+.error-message {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.status-message {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.error-message:empty,
+.status-message:empty {
+  display: none;
+}
+
+.empty-message {
+  padding: 1rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  color: var(--color-muted);
+  background: var(--color-surface-alt);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+
+/* =========================================================
+   6. ANNUAL GOALS DASHBOARD AND PROGRESS BAR
+   ========================================================= */
+/* Goal form: input on the left, two buttons on the right */
+#goal-fieldset {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+#goal-fieldset > .button {
+  align-self: end;
+}
+
+/* Three counter tiles */
+.goal-counters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.counter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.8rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-md);
+}
+
+.counter-value {
+  font-size: 1.7rem;
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-primary-dark);
+}
+
+.goal-progress-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.goal-progress-wrapper .form-label {
+  flex: 0 0 100%;
+}
+
+/* Styled progress bar: track + filled part */
+.goal-progress-bar {
+  flex: 1;
+  min-width: 0;
+  height: 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: #e5e7eb;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.goal-progress-bar::-webkit-progress-bar {
+  background: #e5e7eb;
+  border-radius: var(--radius-pill);
+}
+
+.goal-progress-bar::-webkit-progress-value {
+  background: linear-gradient(90deg, #6366f1, #22c55e);
+  border-radius: var(--radius-pill);
+  transition: width 0.4s ease;
+}
+
+.goal-progress-bar::-moz-progress-bar {
+  background: linear-gradient(90deg, #6366f1, #22c55e);
+  border-radius: var(--radius-pill);
+}
+
+/* Percentage counter pill */
+.goal-progress-percent {
+  min-width: 3.6rem;
+  padding: 0.2rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  color: #ffffff;
+  background: var(--color-primary);
+  border-radius: var(--radius-pill);
+}
+
+
+/* =========================================================
+   7. ADD RESOURCE FORM (two fieldsets side by side)
+   ========================================================= */
+.resource-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.resource-form .form-actions,
+.resource-form .error-message {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   8. VIRTUAL SHELVES AND FILTER BUTTONS
+   ========================================================= */
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-button {
+  padding: 0.45rem 1.2rem;
+  color: var(--color-muted);
+  background: #ffffff;
+  border-color: var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+.filter-button:hover {
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+}
+
+.filter-button.active {
+  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.shelves-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start;
+  gap: 1.25rem;
+}
+
+.shelf {
+  --shelf-accent: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 1.1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--shelf-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.shelf-reading   { --shelf-accent: #4f46e5; }
+.shelf-completed { --shelf-accent: #16a34a; }
+.shelf-wishlist  { --shelf-accent: #f59e0b; }
+
+.shelf-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.shelf-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--shelf-accent);
+  border-radius: var(--radius-pill);
+}
+
+.resource-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+
+/* =========================================================
+   9. RESOURCE CARDS (library cards)
+   ========================================================= */
+.resource-card {
+  --media-color: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--media-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+/* Hover elevation effect */
+.resource-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card edge color follows the media type (JavaScript sets data-media later) */
+.resource-card[data-media="book"]      { --media-color: var(--badge-book); }
+.resource-card[data-media="pdf"]       { --media-color: var(--badge-pdf); }
+.resource-card[data-media="youtube"]   { --media-color: var(--badge-youtube); }
+.resource-card[data-media="newspaper"] { --media-color: var(--badge-newspaper); }
+.resource-card[data-media="leetcode"]  { --media-color: var(--badge-leetcode); }
+
+.resource-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.resource-title {
+  font-size: 1rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.resource-creator {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.resource-due {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.resource-due-date {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* ----- Media type badges (color-coded pills) ----- */
+.resource-media-badge {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #ffffff;
+  background: #64748b;
+  border-radius: var(--radius-pill);
+}
+
+.resource-media-badge:empty {
+  display: none;
+}
+
+.badge-book      { background: var(--badge-book);      color: #ffffff; }
+.badge-pdf       { background: var(--badge-pdf);       color: #ffffff; }
+.badge-youtube   { background: var(--badge-youtube);   color: #ffffff; }
+.badge-newspaper { background: var(--badge-newspaper); color: #ffffff; }
+.badge-leetcode  { background: var(--badge-leetcode);  color: #1f1f1f; }
+
+/* ----- Progress area with the range slider ----- */
+.resource-progress-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}
+
+.progress-slider-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+/* Numerical output pill, e.g. "120 / 350" */
+.progress-output {
+  align-self: flex-end;
+  padding: 0.15rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-pill);
+}
+
+/* Custom range slider.
+   --fill is the filled percentage; JavaScript can update it later. */
+.progress-slider {
+  --fill: 0%;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
+  accent-color: var(--color-primary);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.progress-slider:focus {
+  outline: none;
+}
+
+/* Chrome, Edge, Safari */
+.progress-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(to right, var(--color-primary) var(--fill), #dbe1ee var(--fill));
+}
+
+.progress-slider::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  margin-top: -6px;
+  background: #ffffff;
+  border: 3px solid var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.progress-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+.progress-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.3);
+}
+
+/* Firefox */
+.progress-slider::-moz-range-track {
+  height: 8px;
+  background: #dbe1ee;
+  border-radius: var(--radius-pill);
+}
+
+.progress-slider::-moz-range-progress {
+  height: 8px;
+  background: var(--color-primary);
+  border-radius: var(--radius-pill);
+}
+
+.progress-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border: 3px solid var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.progress-slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.3);
+}
+
+/* ----- Card actions: move shelf + delete ----- */
+.resource-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.move-shelf-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.move-shelf-select {
+  padding: 0.35rem 1.9rem 0.35rem 0.6rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  background-color: #ffffff;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.move-shelf-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+
+/* =========================================================
+   10. QUOTE LOG (form grid + blockquotes)
+   ========================================================= */
+.quote-form .form-fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+/* The resource dropdown and the quote textarea take the full row */
+.quote-form .form-group:has(> select),
+.quote-form .form-group:has(> textarea),
+.quote-form .form-fieldset > .button {
+  grid-column: 1 / -1;
+}
+
+.quote-form .form-fieldset > .button {
+  justify-self: start;
+}
+
+.quotes-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.quote-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.quote-body {
+  flex: 1;
+  min-width: 0;
+  padding-left: 1rem;
+  border-left: 4px solid var(--color-primary);
+}
+
+.quote-text {
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.quote-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.quote-meta > :empty {
+  display: none;
+}
+
+.quote-citation {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.quote-resource-name {
+  padding: 0 0.6rem;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-pill);
+}
+
+.quote-timestamp {
+  margin-left: auto;
+}
+
+
+/* =========================================================
+   11. STUDY CALENDAR (deadlines)
+   ========================================================= */
+.deadline-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.deadline-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-warning);
+  border-radius: var(--radius-md);
+}
+
+.deadline-title {
+  flex: 1 1 140px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.deadline-date {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+.deadline-resource,
+.deadline-countdown {
+  padding: 0.1rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+}
+
+.deadline-resource {
+  color: var(--color-primary-dark);
+  background: var(--color-primary-soft);
+}
+
+.deadline-countdown {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.deadline-resource:empty,
+.deadline-countdown:empty {
+  display: none;
+}
+
+/* JavaScript can add "overdue" to a past deadline */
+.deadline-item.overdue {
+  border-left-color: var(--color-danger);
+}
+
+.deadline-item.overdue .deadline-countdown {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+
+/* =========================================================
+   12. PENDING ASSIGNMENTS CHECKLIST
+   ========================================================= */
+.task-summary {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.task-summary .counter-value {
+  font-size: 1.1rem;
+}
+
+.task-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.task-checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.task-title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* A ticked checkbox crosses out the task title (pure CSS) */
+.task-checkbox:checked + .task-title {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+.task-priority-badge {
+  padding: 0.15rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #374151;
+  background: #e5e7eb;
+  border-radius: var(--radius-pill);
+}
+
+/* JavaScript will add one of these classes to the priority badge */
+.priority-high   { color: #991b1b; background: #fee2e2; }
+.priority-medium { color: #92400e; background: #fef3c7; }
+.priority-low    { color: #166534; background: #dcfce7; }
+
+
+/* =========================================================
+   13. ROUGH DRAFT NOTEPAD
+   ========================================================= */
+#notepad-form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.notepad-textarea {
+  flex: 1;
+  min-height: 220px;
+  line-height: 1.7;
+  background: #fffef7;
+}
+
+
+/* =========================================================
+   14. POMODORO STUDY TIMER
+   ========================================================= */
+#pomodoro-section {
+  text-align: center;
+}
+
+.pomodoro-card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem 1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1e1b4b, #4338ca);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.timer-mode-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* Large digital counter */
+.timer-display {
+  font-family: var(--font-digital);
+  font-size: clamp(3.2rem, 9vw, 5.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* JavaScript can add "running" while the timer counts down */
+.timer-display.running {
+  color: #86efac;
+}
+
+/* Start, Pause and Reset side by side */
+.timer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.pomodoro-card .button-primary {
+  background: #22c55e;
+}
+
+.pomodoro-card .button-primary:hover {
+  background: #16a34a;
+}
+
+.pomodoro-card .button-secondary {
+  color: #ffffff;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.pomodoro-card .button-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.pomodoro-card .status-message {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+
+/* =========================================================
+   15. FOOTER
+   ========================================================= */
+.site-footer {
+  margin-top: 1rem;
+  padding: 1.5rem 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+
+/* =========================================================
+   16. RESPONSIVE: SMALL LAPTOP / LARGE TABLET (max 1100px)
+   Header stacks: title, tagline, then the nav row
+   ========================================================= */
+@media (max-width: 1100px) {
+  .site-header {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "title"
+      "tagline"
+      "nav";
+    row-gap: 0.4rem;
+  }
+}
+
+
+/* =========================================================
+   17. RESPONSIVE: TABLET (max 1024px)
+   ========================================================= */
+@media (max-width: 1024px) {
+  .main-content {
+    gap: 1.25rem;
+    padding: 1.25rem;
+  }
+
+  .main-content > section {
+    padding: 1.25rem;
+  }
+}
+
+
+/* =========================================================
+   18. RESPONSIVE: MOBILE (max 768px)
+   Everything becomes one stacked column
+   ========================================================= */
+@media (max-width: 768px) {
+  .site-header {
+    padding: 0.6rem 1rem;
+  }
+
+  .site-title {
+    font-size: 1.1rem;
+  }
+
+  .site-tagline {
+    display: none;
+  }
+
+  /* Menu scrolls sideways instead of wrapping */
+  .main-nav {
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+  }
+
+  .main-nav-list {
+    flex-wrap: nowrap;
+  }
+
+  .main-content {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "goals"
+      "timer"
+      "add"
+      "shelves"
+      "quotes"
+      "calendar"
+      "tasks"
+      "notes";
+    padding: 1rem;
+  }
+
+  .main-content > section {
+    padding: 1rem;
+    scroll-margin-top: 110px;
+  }
+
+  #shelves-section {
+    padding: 0;
+  }
+
+  .resource-form,
+  .quote-form .form-fieldset {
+    grid-template-columns: 1fr;
+  }
+
+  .shelves-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-item {
+    flex-direction: column;
+  }
+
+  .quote-timestamp {
+    margin-left: 0;
+  }
+}
+
+
+/* =========================================================
+   19. RESPONSIVE: SMALL PHONES (max 480px)
+   ========================================================= */
+@media (max-width: 480px) {
+  #goal-fieldset {
+    grid-template-columns: 1fr;
+  }
+
+  #goal-fieldset > .button {
+    width: 100%;
+  }
+
+  .counter-item {
+    padding: 0.6rem 0.25rem;
+    font-size: 0.65rem;
+  }
+
+  .counter-value {
+    font-size: 1.4rem;
+  }
+
+  .form-actions .button {
+    flex: 1;
+  }
+
+  .timer-controls .button {
+    flex: 1;
+    padding-inline: 0.8rem;
+  }
+
+  .resource-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .move-shelf-label {
+    justify-content: space-between;
+  }
+}
+
+
+/* =========================================================
+   20. ACCESSIBILITY: reduce motion for users who prefer it
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+</style>
 </head>
 <body id="app-body">
 
