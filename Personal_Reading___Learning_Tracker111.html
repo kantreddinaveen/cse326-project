@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Personal Reading and Learning Tracker for books, PDFs, YouTube playlists, newspapers and LeetCode problem sets.">
+  <title>Personal Reading &amp; Learning Tracker</title>
+
+  <!-- External stylesheet (will be created in the CSS step) -->
+  <style>
+/* ===== 1. THEME VARIABLES (change colours here once, whole site updates) ===== */
+:root {
+  --bg: #f4f6fb; --card: #ffffff; --text: #1f2937; --muted: #6b7280;
+  --primary: #4f46e5; --primary-dark: #4338ca; --on-primary: #ffffff;
+  --danger: #dc2626; --ok: #15803d; --border: #d9dee8;
+  --radius: 12px; --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  color-scheme: light dark;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a; --card: #1e293b; --text: #e5e7eb; --muted: #94a3b8;
+    --primary: #818cf8; --primary-dark: #a5b4fc; --on-primary: #0f172a;
+    --danger: #f87171; --ok: #4ade80; --border: #334155;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ===== 2. BASE / RESET ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.5; }
+[hidden] { display: none !important; }
+h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 0.5rem; }
+
+/* ===== 3. HEADER + NAVIGATION ===== */
+.site-header { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff;
+  text-align: center; padding: 2rem 1rem 1.25rem; }
+.site-title { font-size: clamp(1.5rem, 4vw, 2.4rem); }
+.site-tagline { margin: 0 auto 1rem; max-width: 640px; opacity: 0.9; }
+.main-nav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap;
+  justify-content: center; gap: 0.5rem; }
+.main-nav-link { display: inline-block; padding: 0.4rem 0.9rem; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18); color: #fff; text-decoration: none; font-weight: 600; }
+.main-nav-link:hover, .main-nav-link:focus-visible { background: #fff; color: #4338ca; }
+
+/* ===== 4. MAIN LAYOUT: every top-level section is a white card ===== */
+.main-content { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+.main-content > section { background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 1.25rem; margin-bottom: 1.5rem; }
+.section-heading { color: var(--primary); border-bottom: 2px solid var(--border);
+  padding-bottom: 0.4rem; margin-bottom: 1rem; }
+
+/* ===== 5. FORMS ===== */
+.form-fieldset { border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1rem; margin: 0 0 1rem; display: grid; align-items: end;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.form-legend { font-weight: 700; padding: 0 0.5rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.form-label { font-weight: 600; font-size: 0.95rem; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 0.55rem 0.7rem; font: inherit;
+  color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.form-input:focus, .form-select:focus, .form-textarea:focus, .button:focus-visible {
+  outline: 3px solid var(--primary); outline-offset: 1px; }
+.form-textarea { resize: vertical; }
+.form-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.error-message { color: var(--danger); font-weight: 600; min-height: 1.4em; margin: 0.4rem 0 0; }
+.status-message { color: var(--ok); font-weight: 600; min-height: 1.4em; margin: 0.4rem 0 0; }
+.empty-message { color: var(--muted); font-style: italic; }
+
+/* ===== 6. BUTTONS ===== */
+.button { font: inherit; font-weight: 600; padding: 0.55rem 1rem; border-radius: 8px;
+  border: 1px solid transparent; cursor: pointer; transition: transform 0.1s, background 0.2s; }
+.button:active { transform: scale(0.97); }
+.button-primary { background: var(--primary); color: var(--on-primary); }
+.button-primary:hover { background: var(--primary-dark); }
+.button-secondary { background: transparent; color: var(--text); border-color: var(--border); }
+.button-secondary:hover { background: var(--bg); }
+.button-danger { background: transparent; color: var(--danger); border-color: var(--danger); padding: 0.3rem 0.7rem; }
+.button-danger:hover { background: var(--danger); color: #fff; }
+
+/* ===== 7. GOALS DASHBOARD ===== */
+.goal-counters { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+.counter-item { flex: 1 1 120px; background: var(--bg); border-radius: var(--radius);
+  padding: 0.8rem; text-align: center; margin: 0; }
+.counter-value { display: block; font-size: 1.8rem; color: var(--primary); }
+.goal-progress-wrapper { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+.goal-progress-bar { flex: 1 1 200px; height: 20px; accent-color: var(--primary); }
+.goal-progress-percent { font-weight: 700; min-width: 3.5ch; }
+
+/* ===== 8. SHELVES + RESOURCE CARDS ===== */
+.filter-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.filter-button { background: var(--bg); color: var(--text); border-color: var(--border); }
+.filter-button.active { background: var(--primary); color: var(--on-primary); }
+.shelves-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1rem; align-items: start; }
+.shelf { background: var(--bg); border-radius: var(--radius); padding: 0.9rem; border-top: 4px solid var(--primary); }
+.shelf-completed { border-top-color: var(--ok); }
+.shelf-wishlist { border-top-color: #d97706; }
+.shelf-count { background: var(--primary); color: var(--on-primary); border-radius: 999px;
+  padding: 0 0.6rem; font-size: 0.85rem; margin-left: 0.3rem; }
+.resource-list { display: grid; gap: 0.8rem; }
+.resource-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.8rem; box-shadow: var(--shadow); }
+.resource-card-header { display: flex; justify-content: space-between; gap: 0.5rem; align-items: flex-start; }
+.resource-title { margin: 0; word-break: break-word; }
+.resource-media-badge { font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 999px;
+  background: var(--border); white-space: nowrap; }
+.media-book { background: #fde68a; color: #78350f; }
+.media-pdf { background: #fecaca; color: #7f1d1d; }
+.media-youtube { background: #fbcfe8; color: #831843; }
+.media-newspaper { background: #d1d5db; color: #1f2937; }
+.media-leetcode { background: #bbf7d0; color: #14532d; }
+.resource-creator, .resource-due { margin: 0.2rem 0; color: var(--muted); font-size: 0.9rem; }
+.resource-due.overdue { color: var(--danger); font-weight: 700; }
+.progress-slider-label, .move-shelf-label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.9rem; font-weight: 600; }
+.progress-slider { width: 100%; accent-color: var(--primary); }
+.progress-output { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+.resource-card-actions { display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5rem; }
+.move-shelf-select { padding: 0.3rem; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font: inherit; }
+
+/* ===== 8b. YOUTUBE AREA INSIDE A CARD ===== */
+.youtube-area { display: grid; gap: 0.5rem; margin-bottom: 0.7rem; }
+.yt-thumb { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: var(--border); }
+.yt-single { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; }
+.yt-time-label { display: flex; flex-direction: column; gap: 0.2rem; flex: 1 1 120px; font-size: 0.9rem; font-weight: 600; }
+.yt-items { list-style: none; margin: 0; padding: 0.4rem; display: grid; gap: 0.3rem; max-height: 180px; overflow-y: auto;
+  border: 1px solid var(--border); border-radius: 8px; }
+.yt-item { display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.9rem; }
+.yt-item.done span { text-decoration: line-through; color: var(--muted); }
+.yt-text { font-size: 0.85rem; color: var(--muted); }
+.yt-message { margin: 0; min-height: 0; }
+.yt-resume-link { font-weight: 700; color: var(--primary); }
+
+/* ===== 9. QUOTES, DEADLINES, TASKS ===== */
+.quotes-list, .deadline-list, .task-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.7rem; }
+.quote-item { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start;
+  background: var(--bg); border-radius: 10px; padding: 0.8rem; }
+.quote-body { margin: 0; border-left: 4px solid var(--primary); padding-left: 0.8rem; }
+.quote-text { font-style: italic; margin: 0 0 0.3rem; }
+.quote-meta { display: flex; flex-wrap: wrap; gap: 0.2rem 0.8rem; font-size: 0.85rem; color: var(--muted); }
+.quote-citation { font-weight: 700; color: var(--text); }
+.deadline-item, .task-item { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem;
+  background: var(--bg); border-radius: 10px; padding: 0.7rem 0.9rem; }
+.deadline-item .delete-deadline-button, .task-item .delete-task-button { margin-left: auto; }
+.deadline-countdown { font-weight: 700; color: var(--primary); }
+.deadline-item.overdue .deadline-countdown { color: var(--danger); }
+.deadline-resource { color: var(--muted); font-size: 0.9rem; }
+.task-summary { margin: 1rem 0 0.5rem; }
+.task-title { flex: 1 1 140px; }
+.task-item.done .task-title { text-decoration: line-through; color: var(--muted); }
+.task-checkbox { width: 1.2rem; height: 1.2rem; accent-color: var(--primary); }
+.task-priority-badge { font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 999px; color: #fff; }
+.priority-high { background: #dc2626; }
+.priority-medium { background: #d97706; }
+.priority-low { background: #16a34a; }
+
+/* ===== 10. NOTEPAD + POMODORO TIMER ===== */
+.notepad-textarea { min-height: 160px; }
+.pomodoro-card { text-align: center; background: var(--bg); border-radius: var(--radius); padding: 1.5rem 1rem; }
+.timer-mode-label { font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 0; }
+.timer-display { font-size: clamp(3rem, 14vw, 5.5rem); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--primary); }
+.timer-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; }
+
+/* ===== 11b. NEW FEATURES: colours used by calendar, timetable and study progress ===== */
+:root {
+  --c-holiday: #dc2626; --c-exam: #7c3aed; --c-assignment: #b45309;
+  --c-study: #0f766e; --c-resource: #2563eb;
+}
+.type-holiday { background: var(--c-holiday); color: #fff; }
+.type-exam { background: var(--c-exam); color: #fff; }
+.type-assignment { background: var(--c-assignment); color: #fff; }
+.type-study { background: var(--c-study); color: #fff; }
+.type-resource { background: var(--c-resource); color: #fff; }
+.event-type-badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem;
+  border-radius: 999px; white-space: nowrap; }
+
+.cat-class { --cat: #4f46e5; }
+.cat-study { --cat: #0f766e; }
+.cat-break { --cat: #b45309; }
+.cat-meal { --cat: #db2777; }
+.cat-exercise { --cat: #15803d; }
+.cat-other { --cat: #64748b; }
+
+/* ===== 11c. SHARED MONTH GRID ===== */
+.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.month-weekday { text-align: center; font-weight: 700; font-size: 0.8rem; padding: 0.4rem 0; color: var(--muted); }
+.month-weekday.sunday { color: var(--danger); }
+.agenda-heading { color: var(--text); font-size: 1.1rem; margin: 1rem 0 0.5rem; }
+
+/* ===== 11d. WALL CALENDAR ===== */
+.calendar-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); gap: 1rem; align-items: start; }
+.wall-calendar { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  background: var(--card); box-shadow: var(--shadow); }
+.cal-top { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; padding: 0 1rem 0.8rem; text-align: center; }
+.cal-rings { height: 30px; background-image: radial-gradient(circle at 50% 55%, var(--card) 0 6px, rgba(255, 255, 255, 0.7) 6px 8px, transparent 8px);
+  background-size: 46px 30px; background-repeat: repeat-x; background-position: center; }
+.cal-title-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.cal-month-title { margin: 0; font-size: clamp(1.4rem, 4vw, 2.1rem); letter-spacing: 0.02em; }
+.cal-nav-button { background: rgba(255, 255, 255, 0.2); color: #fff; border-color: rgba(255, 255, 255, 0.45); }
+.cal-nav-button:hover { background: #fff; color: #4338ca; }
+.cal-today-button { margin-top: 0.5rem; padding: 0.25rem 0.8rem; font-size: 0.85rem; }
+.wall-grid { border-top: 1px solid var(--border); border-left: 1px solid var(--border); margin: 0.5rem 0.75rem 0; }
+.wall-grid .month-weekday, .wall-grid .month-blank, .wall-grid .cal-day {
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.wall-grid .month-blank { background: var(--bg); min-height: 40px; }
+.cal-day { font: inherit; color: var(--text); background: var(--card); text-align: left; cursor: pointer;
+  padding: 0.3rem; min-height: 96px; min-width: 0; display: flex; flex-direction: column; gap: 0.25rem;
+  border-top: 0; border-left: 0; border-radius: 0; overflow: hidden; }
+.cal-day:hover { background: var(--bg); }
+.cal-day:focus-visible, .cal-day.selected { outline: 3px solid var(--primary); outline-offset: -3px; }
+.cal-day.has-holiday { background: color-mix(in srgb, var(--danger) 9%, var(--card)); }
+.cal-day-number { width: 1.7rem; height: 1.7rem; display: grid; place-items: center; font-weight: 700; border-radius: 50%; }
+.cal-day.is-sunday .cal-day-number, .cal-day.has-holiday .cal-day-number { color: var(--danger); }
+.cal-day.today .cal-day-number { background: var(--primary); color: var(--on-primary); }
+.cal-chips { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cal-chip { display: block; font-size: 0.7rem; line-height: 1.3; padding: 0.05rem 0.35rem; border-radius: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-chip.chip-done { opacity: 0.55; text-decoration: line-through; }
+.cal-more { font-size: 0.7rem; color: var(--muted); }
+.cal-legend { list-style: none; margin: 0; padding: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+
+.day-panel { background: var(--bg); border-radius: var(--radius); padding: 1rem; border-top: 4px solid var(--primary); }
+.day-panel-title { font-size: 1.1rem; }
+.day-panel-study { color: var(--muted); margin: 0 0 0.8rem; }
+.day-events { list-style: none; margin: 0 0 0.8rem; padding: 0; display: grid; gap: 0.5rem; }
+.day-event { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-items: center; }
+.day-event .button-danger { margin-left: auto; padding: 0.2rem 0.6rem; font-size: 0.85rem; }
+.day-event-title.done { text-decoration: line-through; color: var(--muted); }
+
+.agenda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+.task-summary .counter-value { display: inline; font-size: 1.2rem; }
+.task-date, .task-countdown { font-size: 0.85rem; color: var(--muted); }
+.task-countdown { font-weight: 700; }
+.task-item.overdue .task-countdown { color: var(--danger); }
+.deadline-item.past { opacity: 0.65; }
+
+/* ===== 11e. DAILY TIMETABLE ===== */
+.day-checks-group { grid-column: 1 / -1; }
+.day-checks { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.day-check { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--bg); font-weight: 600; }
+.day-check input { accent-color: var(--primary); }
+.day-strip { position: relative; height: 36px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; }
+.strip-block { position: absolute; top: 4px; bottom: 4px; min-width: 3px; border-radius: 4px; background: var(--cat); }
+.strip-now { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--danger); }
+.strip-ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+.timetable-summary { color: var(--muted); margin: 0.6rem 0; }
+.timetable-list { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.6rem; }
+.timetable-item { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1rem; background: var(--bg);
+  border-radius: 10px; padding: 0.7rem 0.9rem; border-left: 6px solid var(--cat); }
+.timetable-item.now { box-shadow: 0 0 0 2px var(--primary); }
+.timetable-item.now .timetable-title::after { content: " (now)"; color: var(--primary); }
+.timetable-time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.timetable-title { flex: 1 1 140px; }
+.timetable-category-badge { font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 999px;
+  background: var(--cat); color: #fff; }
+.timetable-duration { color: var(--muted); font-size: 0.9rem; }
+.timetable-item .delete-timetable-button { margin-left: auto; }
+
+/* ===== 11f. FLEXIBLE POMODORO + STUDY PROGRESS ===== */
+.timer-settings-form { text-align: left; }
+.timer-presets { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.timer-presets .button { padding: 0.35rem 0.9rem; }
+.timer-today-summary { margin: 0.4rem 0 0; font-weight: 600; }
+.study-log-form { margin-top: 1.25rem; }
+.study-toolbar { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-end; justify-content: space-between; }
+.study-month-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.study-month-title { min-width: 9ch; text-align: center; font-size: 1.15rem; }
+.study-target-group { max-width: 220px; }
+.study-grid { gap: 4px; }
+.study-day { border: 1px solid var(--border); border-radius: 8px; padding: 0.3rem; min-height: 66px; min-width: 0;
+  display: flex; flex-direction: column; justify-content: space-between; }
+.study-day.today { outline: 2px solid var(--primary); outline-offset: 1px; }
+.study-day.future { opacity: 0.5; }
+.study-day-number { font-weight: 700; font-size: 0.85rem; }
+.study-day-time { font-size: 0.72rem; font-weight: 600; overflow-wrap: anywhere; }
+.heat-0 { background: var(--bg); }
+.heat-1 { background: color-mix(in srgb, var(--primary) 15%, var(--card)); }
+.heat-2 { background: color-mix(in srgb, var(--primary) 28%, var(--card)); }
+.heat-3 { background: color-mix(in srgb, var(--primary) 42%, var(--card)); }
+.heat-4 { background: var(--primary); color: var(--on-primary); }
+.heat-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0.7rem 0; font-size: 0.85rem; color: var(--muted); }
+.legend-swatch { width: 1.1rem; height: 1.1rem; border-radius: 4px; border: 1px solid var(--border); }
+.study-stats .counter-value { font-size: 1.25rem; margin-top: 0.15rem; }
+.study-bars { margin-top: 0.4rem; }
+.study-bars-plot { position: relative; height: 130px; display: flex; gap: 2px; align-items: flex-end;
+  border-bottom: 1px solid var(--border); background: var(--bg); border-radius: 8px 8px 0 0; padding: 0 2px; }
+.study-bar-col { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
+.study-bar { width: 100%; background: var(--primary); border-radius: 3px 3px 0 0; }
+.study-target-line { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--ok); pointer-events: none; }
+.study-bars-labels { display: flex; gap: 2px; padding: 0 2px; }
+.study-bar-label { flex: 1; min-width: 0; text-align: center; font-size: 0.65rem; color: var(--muted); }
+
+/* ===== 12b. RESPONSIVE: new features ===== */
+@media (max-width: 800px) {
+  .calendar-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .wall-grid { margin: 0.4rem 0.4rem 0; }
+  .cal-day { min-height: 56px; padding: 0.2rem; }
+  .cal-chips { flex-direction: row; flex-wrap: wrap; gap: 3px; }
+  .cal-chip { font-size: 0; width: 8px; height: 8px; padding: 0; border-radius: 50%; }
+  .cal-more { display: none; }
+  .study-grid { gap: 2px; }
+  .study-day { min-height: 52px; padding: 0.2rem; }
+  .study-day-time { font-size: 0.6rem; }
+  .study-month-nav .button { flex: 0 1 auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ===== 11. FOOTER ===== */
+.site-footer { text-align: center; padding: 1.5rem 1rem; color: var(--muted); font-size: 0.9rem; }
+
+/* ===== 12. RESPONSIVE (mobile screens) ===== */
+@media (max-width: 600px) {
+  .main-content { padding: 0.6rem; }
+  .main-content > section { padding: 0.9rem; }
+  .form-actions .button, .timer-controls .button { flex: 1 1 100%; }
+  .quote-item { flex-direction: column; }
+  .resource-card-actions { flex-direction: column; align-items: stretch; }
+}
+
+</style>
+</head>
+<body id="app-body">
+
+  <!-- ==========================================================
+       BLOCK 1: SITE HEADER AND MAIN NAVIGATION
+       ========================================================== -->
+  <header id="site-header" class="site-header">
+    <h1 id="site-title" class="site-title">Personal Reading &amp; Learning Tracker</h1>
+    <p id="site-tagline" class="site-tagline">Track books, PDFs, YouTube playlists, newspapers and LeetCode problem sets in one place.</p>
+
+    <nav id="main-nav" class="main-nav" aria-label="Main navigation">
+      <ul id="main-nav-list" class="main-nav-list">
+        <li class="main-nav-item"><a id="nav-goals" class="main-nav-link" href="#goals-section">Goals</a></li>
+        <li class="main-nav-item"><a id="nav-add" class="main-nav-link" href="#add-resource-section">Add Resource</a></li>
+        <li class="main-nav-item"><a id="nav-shelves" class="main-nav-link" href="#shelves-section">Shelves</a></li>
+        <li class="main-nav-item"><a id="nav-quotes" class="main-nav-link" href="#quotes-section">Quotes</a></li>
+        <li class="main-nav-item"><a id="nav-calendar" class="main-nav-link" href="#calendar-section">Calendar</a></li>
+        <li class="main-nav-item"><a id="nav-timetable" class="main-nav-link" href="#timetable-section">Timetable</a></li>
+        <li class="main-nav-item"><a id="nav-notes" class="main-nav-link" href="#notepad-section">Notepad</a></li>
+        <li class="main-nav-item"><a id="nav-timer" class="main-nav-link" href="#pomodoro-section">Timer</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" class="main-content">
+
+    <!-- ==========================================================
+         BLOCK 2: ANNUAL GOALS DASHBOARD (2026)
+         Goal input, completion counters and progress bar
+         ========================================================== -->
+    <section id="goals-section" class="dashboard-section goals-section">
+      <h2 id="goals-heading" class="section-heading">Annual Goals Dashboard 2026</h2>
+
+      <form id="goal-form" class="goal-form" novalidate>
+        <fieldset id="goal-fieldset" class="form-fieldset">
+          <legend id="goal-legend" class="form-legend">Set your 2026 goal</legend>
+
+          <div class="form-group">
+            <label id="goal-label" class="form-label" for="goal-input">Resources I want to complete in 2026</label>
+            <input type="number" id="goal-input" class="form-input goal-input" name="goalTarget" min="1" max="1000" placeholder="e.g. 24">
+          </div>
+
+          <button type="submit" id="goal-submit-button" class="button button-primary goal-submit-button">Save Goal</button>
+          <button type="button" id="goal-reset-button" class="button button-secondary goal-reset-button">Clear Goal</button>
+        </fieldset>
+        <p id="goal-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+
+      <!-- Completion counters -->
+      <div id="goal-counters" class="goal-counters">
+        <p class="counter-item">Goal: <strong id="goal-target-count" class="counter-value">0</strong></p>
+        <p class="counter-item">Completed: <strong id="goal-completed-count" class="counter-value">0</strong></p>
+        <p class="counter-item">Remaining: <strong id="goal-remaining-count" class="counter-value">0</strong></p>
+      </div>
+
+      <!-- Goal progress bar -->
+      <div id="goal-progress-wrapper" class="goal-progress-wrapper">
+        <label id="goal-progress-label" class="form-label" for="goal-progress-bar">Goal progress</label>
+        <progress id="goal-progress-bar" class="goal-progress-bar" value="0" max="100">0%</progress>
+        <output id="goal-progress-percent" class="goal-progress-percent" for="goal-progress-bar">0%</output>
+      </div>
+      <p id="goal-status-message" class="status-message" aria-live="polite">No goal set yet.</p>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 3: ADD RESOURCE FORM
+         Title, media type, creator, shelf, total units, progress, due date
+         ========================================================== -->
+    <section id="add-resource-section" class="form-section add-resource-section">
+      <h2 id="add-resource-heading" class="section-heading">Add a Resource</h2>
+
+      <form id="resource-form" class="resource-form" novalidate>
+
+        <!-- Group 0: YouTube shortcut (optional) -->
+        <fieldset id="resource-youtube-fieldset" class="form-fieldset">
+          <legend id="resource-youtube-legend" class="form-legend">YouTube shortcut (optional)</legend>
+
+          <div class="form-group">
+            <label id="resource-link-label" class="form-label" for="resource-link-input">Paste a YouTube video or playlist link</label>
+            <input type="text" id="resource-link-input" class="form-input" name="youtubeLink" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+
+          <div class="form-group">
+            <label id="resource-duration-label" class="form-label" for="resource-duration-input">Video length (mm:ss, only if not auto-filled)</label>
+            <input type="text" id="resource-duration-input" class="form-input" name="videoLength" placeholder="e.g. 45:10">
+          </div>
+
+          <button type="button" id="resource-fetch-button" class="button button-primary">Fetch details</button>
+          <p id="resource-link-message" class="status-message" aria-live="polite"></p>
+        </fieldset>
+
+        <!-- Group A: basic details -->
+        <fieldset id="resource-details-fieldset" class="form-fieldset">
+          <legend id="resource-details-legend" class="form-legend">Basic details</legend>
+
+          <div class="form-group">
+            <label id="resource-title-label" class="form-label" for="resource-title-input">Title</label>
+            <input type="text" id="resource-title-input" class="form-input" name="title" placeholder="e.g. Clean Code">
+          </div>
+
+          <div class="form-group">
+            <label id="resource-media-label" class="form-label" for="resource-media-select">Media type</label>
+            <select id="resource-media-select" class="form-select" name="mediaType">
+              <option value="">Select media type</option>
+              <option value="book">Physical Book</option>
+              <option value="pdf">PDF</option>
+              <option value="youtube">YouTube Playlist</option>
+              <option value="newspaper">Newspaper</option>
+              <option value="leetcode">LeetCode Problem Set</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="resource-creator-label" class="form-label" for="resource-creator-input">Author / Creator</label>
+            <input type="text" id="resource-creator-input" class="form-input" name="creator" placeholder="Author, channel or publisher">
+          </div>
+        </fieldset>
+
+        <!-- Group B: shelf, units and progress -->
+        <fieldset id="resource-progress-fieldset" class="form-fieldset">
+          <legend id="resource-progress-legend" class="form-legend">Shelf and progress</legend>
+
+          <div class="form-group">
+            <label id="resource-shelf-label" class="form-label" for="resource-shelf-select">Shelf</label>
+            <select id="resource-shelf-select" class="form-select" name="shelf">
+              <option value="reading">Reading (Active)</option>
+              <option value="completed">Completed (Finished)</option>
+              <option value="wishlist">Wishlist (Saved for later)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="resource-total-label" class="form-label" for="resource-total-input">Total units (pages / videos / issues / problems)</label>
+            <input type="number" id="resource-total-input" class="form-input" name="totalUnits" min="1" placeholder="e.g. 350">
+          </div>
+
+          <div class="form-group">
+            <label id="resource-current-label" class="form-label" for="resource-current-input">Current progress (units done)</label>
+            <input type="number" id="resource-current-input" class="form-input" name="currentProgress" min="0" value="0">
+          </div>
+
+          <div class="form-group">
+            <label id="resource-due-label" class="form-label" for="resource-due-input">Due date (optional)</label>
+            <input type="date" id="resource-due-input" class="form-input" name="dueDate">
+          </div>
+        </fieldset>
+
+        <div id="resource-form-actions" class="form-actions">
+          <button type="submit" id="resource-submit-button" class="button button-primary">Add Resource</button>
+          <button type="reset" id="resource-reset-button" class="button button-secondary">Reset Form</button>
+        </div>
+        <p id="resource-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 4: VIRTUAL SHELVES
+         Filter buttons plus Reading, Completed and Wishlist containers
+         ========================================================== -->
+    <section id="shelves-section" class="shelves-section">
+      <h2 id="shelves-heading" class="section-heading">Virtual Shelves</h2>
+
+      <!-- Shelf filter buttons -->
+      <div id="shelf-filter-group" class="filter-group" role="group" aria-label="Filter shelves">
+        <button type="button" id="filter-all-button" class="button filter-button active" data-filter="all">All</button>
+        <button type="button" id="filter-reading-button" class="button filter-button" data-filter="reading">Reading</button>
+        <button type="button" id="filter-completed-button" class="button filter-button" data-filter="completed">Completed</button>
+        <button type="button" id="filter-wishlist-button" class="button filter-button" data-filter="wishlist">Wishlist</button>
+      </div>
+
+      <div id="shelves-grid" class="shelves-grid">
+
+        <!-- Shelf 1: Reading (Active) -->
+        <section id="shelf-reading" class="shelf shelf-reading" data-shelf="reading">
+          <h3 id="shelf-reading-heading" class="shelf-heading">Reading (Active) <span id="shelf-reading-count" class="shelf-count">0</span></h3>
+          <div id="reading-list" class="resource-list"></div>
+          <p id="reading-empty-message" class="empty-message">Nothing on this shelf yet.</p>
+        </section>
+
+        <!-- Shelf 2: Completed (Finished) -->
+        <section id="shelf-completed" class="shelf shelf-completed" data-shelf="completed">
+          <h3 id="shelf-completed-heading" class="shelf-heading">Completed (Finished) <span id="shelf-completed-count" class="shelf-count">0</span></h3>
+          <div id="completed-list" class="resource-list"></div>
+          <p id="completed-empty-message" class="empty-message">Nothing on this shelf yet.</p>
+        </section>
+
+        <!-- Shelf 3: Wishlist (Saved for later) -->
+        <section id="shelf-wishlist" class="shelf shelf-wishlist" data-shelf="wishlist">
+          <h3 id="shelf-wishlist-heading" class="shelf-heading">Wishlist (Saved for later) <span id="shelf-wishlist-count" class="shelf-count">0</span></h3>
+          <div id="wishlist-list" class="resource-list"></div>
+          <p id="wishlist-empty-message" class="empty-message">Nothing on this shelf yet.</p>
+        </section>
+
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 5: PERMANENT QUOTE LOG
+         Quote input form and display container
+         ========================================================== -->
+    <section id="quotes-section" class="quotes-section">
+      <h2 id="quotes-heading" class="section-heading">Permanent Quote Log</h2>
+
+      <form id="quote-form" class="quote-form" novalidate>
+        <fieldset id="quote-fieldset" class="form-fieldset">
+          <legend id="quote-legend" class="form-legend">Save a quote</legend>
+
+          <div class="form-group">
+            <label id="quote-resource-label" class="form-label" for="quote-resource-select">From resource</label>
+            <select id="quote-resource-select" class="form-select" name="quoteResource">
+              <option value="">Select a resource</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="quote-text-label" class="form-label" for="quote-text-input">Quote</label>
+            <textarea id="quote-text-input" class="form-textarea" name="quoteText" rows="3" placeholder="Type the quote here"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label id="quote-citation-label" class="form-label" for="quote-citation-input">Citation (author / source)</label>
+            <input type="text" id="quote-citation-input" class="form-input" name="quoteCitation" placeholder="e.g. Robert C. Martin, Clean Code">
+          </div>
+
+          <div class="form-group">
+            <label id="quote-location-label" class="form-label" for="quote-location-input">Page number or video timestamp</label>
+            <input type="text" id="quote-location-input" class="form-input" name="quoteLocation" placeholder="e.g. Page 45 or 12:30">
+          </div>
+
+          <button type="submit" id="quote-submit-button" class="button button-primary">Save Quote</button>
+        </fieldset>
+        <p id="quote-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+
+      <!-- Quote display container -->
+      <div id="quotes-display" class="quotes-display">
+        <ul id="quotes-list" class="quotes-list"></ul>
+        <p id="quotes-empty-message" class="empty-message">No quotes saved yet.</p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 6: STUDY CALENDAR + PENDING ASSIGNMENTS (merged)
+         Wall-style monthly calendar, one add form, day details,
+         pending assignment checklist and list of upcoming dates
+         ========================================================== -->
+    <section id="calendar-section" class="calendar-section">
+      <h2 id="calendar-heading" class="section-heading">Study Calendar &amp; Pending Assignments</h2>
+
+      <form id="event-form" class="event-form" novalidate>
+        <fieldset id="event-fieldset" class="form-fieldset">
+          <legend id="event-legend" class="form-legend">Add to your calendar</legend>
+
+          <div class="form-group">
+            <label id="event-title-label" class="form-label" for="event-title-input">Title</label>
+            <input type="text" id="event-title-input" class="form-input" name="eventTitle" placeholder="e.g. DBMS assignment 2">
+          </div>
+
+          <div class="form-group">
+            <label id="event-type-label" class="form-label" for="event-type-select">What is it?</label>
+            <select id="event-type-select" class="form-select" name="eventType">
+              <option value="assignment" selected>Assignment deadline</option>
+              <option value="exam">Exam date</option>
+              <option value="holiday">Holiday</option>
+              <option value="study">Study deadline</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="event-date-label" class="form-label" for="event-date-input">Date</label>
+            <input type="date" id="event-date-input" class="form-input" name="eventDate">
+          </div>
+
+          <div id="event-priority-group" class="form-group">
+            <label id="event-priority-label" class="form-label" for="event-priority-select">Priority</label>
+            <select id="event-priority-select" class="form-select" name="eventPriority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <div id="event-resource-group" class="form-group" hidden>
+            <label id="deadline-resource-label" class="form-label" for="deadline-resource-select">Related resource (optional)</label>
+            <select id="deadline-resource-select" class="form-select" name="deadlineResource">
+              <option value="">None</option>
+            </select>
+          </div>
+
+          <button type="submit" id="event-submit-button" class="button button-primary">Add to calendar</button>
+        </fieldset>
+        <p id="event-error-message" class="error-message" aria-live="polite"></p>
+        <p id="event-status-message" class="status-message" aria-live="polite"></p>
+      </form>
+
+      <div id="calendar-layout" class="calendar-layout">
+
+        <!-- The wall calendar -->
+        <div id="wall-calendar" class="wall-calendar">
+          <div id="cal-top" class="cal-top">
+            <div id="cal-rings" class="cal-rings" aria-hidden="true"></div>
+            <div id="cal-title-row" class="cal-title-row">
+              <button type="button" id="cal-prev-button" class="button cal-nav-button" aria-label="Previous month">&lsaquo;</button>
+              <h3 id="cal-month-title" class="cal-month-title" aria-live="polite"></h3>
+              <button type="button" id="cal-next-button" class="button cal-nav-button" aria-label="Next month">&rsaquo;</button>
+            </div>
+            <button type="button" id="cal-today-button" class="button cal-nav-button cal-today-button">Go to today</button>
+          </div>
+
+          <div id="cal-grid" class="month-grid wall-grid"></div>
+
+          <ul id="cal-legend" class="cal-legend" aria-label="Colour key">
+            <li><span class="event-type-badge type-holiday">Holiday</span></li>
+            <li><span class="event-type-badge type-exam">Exam</span></li>
+            <li><span class="event-type-badge type-assignment">Assignment</span></li>
+            <li><span class="event-type-badge type-study">Study deadline</span></li>
+            <li><span class="event-type-badge type-resource">Resource due</span></li>
+          </ul>
+        </div>
+
+        <!-- Details of the day the student clicked -->
+        <aside id="day-panel" class="day-panel" aria-label="Selected day">
+          <h3 id="day-panel-title" class="day-panel-title"></h3>
+          <p id="day-panel-study" class="day-panel-study"></p>
+          <ul id="day-panel-events" class="day-events"></ul>
+          <p id="day-panel-empty" class="empty-message">Nothing planned for this day.</p>
+          <button type="button" id="day-panel-add-button" class="button button-secondary">Add something on this day</button>
+        </aside>
+      </div>
+
+      <div id="agenda-grid" class="agenda-grid">
+        <div id="assignments-block" class="agenda-block">
+          <h3 id="assignments-heading" class="agenda-heading">Pending assignments</h3>
+          <p id="task-summary" class="task-summary">Still to do: <strong id="task-pending-count" class="counter-value">0</strong></p>
+          <ul id="task-list" class="task-list"></ul>
+          <p id="task-empty-message" class="empty-message">No assignments yet. Add one above with its deadline.</p>
+        </div>
+
+        <div id="dates-block" class="agenda-block">
+          <h3 id="dates-heading" class="agenda-heading">Exams, holidays and study deadlines</h3>
+          <ul id="deadline-list" class="deadline-list"></ul>
+          <p id="deadline-empty-message" class="empty-message">Nothing added yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 7: DAILY TIMETABLE
+         Time blocks per weekday, shown as a 24-hour strip and a list
+         ========================================================== -->
+    <section id="timetable-section" class="timetable-section">
+      <h2 id="timetable-heading" class="section-heading">Daily Timetable</h2>
+
+      <form id="timetable-form" class="timetable-form" novalidate>
+        <fieldset id="timetable-fieldset" class="form-fieldset">
+          <legend id="timetable-legend" class="form-legend">Add a time block</legend>
+
+          <div class="form-group">
+            <label id="timetable-title-label" class="form-label" for="timetable-title-input">Activity</label>
+            <input type="text" id="timetable-title-input" class="form-input" name="blockTitle" placeholder="e.g. Data Structures lecture">
+          </div>
+
+          <div class="form-group">
+            <label id="timetable-category-label" class="form-label" for="timetable-category-select">Type</label>
+            <select id="timetable-category-select" class="form-select" name="blockCategory">
+              <option value="class">Class</option>
+              <option value="study" selected>Study</option>
+              <option value="break">Break</option>
+              <option value="meal">Meal</option>
+              <option value="exercise">Exercise</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="timetable-start-label" class="form-label" for="timetable-start-input">Starts at</label>
+            <input type="time" id="timetable-start-input" class="form-input" name="blockStart">
+          </div>
+
+          <div class="form-group">
+            <label id="timetable-end-label" class="form-label" for="timetable-end-input">Ends at</label>
+            <input type="time" id="timetable-end-input" class="form-input" name="blockEnd">
+          </div>
+
+          <div id="timetable-days-group" class="form-group day-checks-group" role="group" aria-labelledby="timetable-days-label">
+            <span id="timetable-days-label" class="form-label">Repeat on</span>
+            <div id="timetable-day-checks" class="day-checks">
+              <label class="day-check"><input type="checkbox" class="timetable-day-check" value="1"> Mon</label>
+              <label class="day-check"><input type="checkbox" class="timetable-day-check" value="2"> Tue</label>
+              <label class="day-check"><input type="checkbox" class="timetable-day-check" value="3"> Wed</label>
+              <label class="day-check"><input type="checkbox" class="timetable-day-check" value="4"> Thu</label>
+              <label class="day-check"><input type="checkbox" class="timetable-day-check" value="5"> Fri</label>
+              <label class="day-check"><input type="checkbox" class="timetable-day-check" value="6"> Sat</label>
+              <label class="day-check"><input type="checkbox" class="timetable-day-check" value="0"> Sun</label>
+            </div>
+          </div>
+
+          <button type="submit" id="timetable-submit-button" class="button button-primary">Add to timetable</button>
+        </fieldset>
+        <p id="timetable-error-message" class="error-message" aria-live="polite"></p>
+      </form>
+
+      <div id="timetable-tabs" class="filter-group" role="group" aria-label="Choose a day"></div>
+      <h3 id="timetable-day-title" class="agenda-heading"></h3>
+      <div id="timetable-strip" class="day-strip" aria-hidden="true"></div>
+      <div id="timetable-ticks" class="strip-ticks" aria-hidden="true">
+        <span>12 am</span><span>6 am</span><span>12 pm</span><span>6 pm</span><span>12 am</span>
+      </div>
+      <p id="timetable-summary" class="timetable-summary"></p>
+      <ul id="timetable-list" class="timetable-list"></ul>
+      <p id="timetable-empty-message" class="empty-message"></p>
+      <button type="button" id="timetable-clear-button" class="button button-danger">Clear this day</button>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 8: ROUGH DRAFT NOTEPAD
+         Workspace for quick, unfinished notes
+         ========================================================== -->
+    <section id="notepad-section" class="notepad-section">
+      <h2 id="notepad-heading" class="section-heading">Rough Draft Notepad</h2>
+
+      <form id="notepad-form" class="notepad-form">
+        <label id="notepad-label" class="form-label" for="notepad-textarea">Quick lecture / study notes</label>
+        <textarea id="notepad-textarea" class="form-textarea notepad-textarea" name="draftNotes" rows="8" placeholder="Jot down rough notes here..."></textarea>
+
+        <div id="notepad-actions" class="form-actions">
+          <button type="button" id="notepad-save-button" class="button button-primary">Save Notes</button>
+          <button type="button" id="notepad-clear-button" class="button button-secondary">Clear Notes</button>
+        </div>
+        <p id="notepad-status-message" class="status-message" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ==========================================================
+         BLOCK 9: POMODORO TIMER (any length) + STUDY PROGRESS
+         Custom focus / break minutes, per-day study time,
+         monthly heat-map calendar, stats and bar chart
+         ========================================================== -->
+    <section id="pomodoro-section" class="pomodoro-section">
+      <h2 id="pomodoro-heading" class="section-heading">Pomodoro Timer &amp; Study Progress</h2>
+
+      <article id="pomodoro-card" class="pomodoro-card">
+        <form id="timer-settings-form" class="timer-settings-form" novalidate>
+          <fieldset id="timer-settings-fieldset" class="form-fieldset">
+            <legend id="timer-settings-legend" class="form-legend">Choose your own session length</legend>
+
+            <div class="form-group">
+              <label id="timer-focus-label" class="form-label" for="timer-focus-input">Focus time (minutes)</label>
+              <input type="number" id="timer-focus-input" class="form-input" name="focusMinutes" min="1" max="600" inputmode="numeric">
+            </div>
+
+            <div class="form-group">
+              <label id="timer-break-label" class="form-label" for="timer-break-input">Break time (minutes)</label>
+              <input type="number" id="timer-break-input" class="form-input" name="breakMinutes" min="1" max="120" inputmode="numeric">
+            </div>
+
+            <button type="submit" id="timer-apply-button" class="button button-primary">Set timer</button>
+
+            <div id="timer-presets" class="timer-presets" role="group" aria-label="Quick presets (focus / break)">
+              <button type="button" class="button button-secondary timer-preset-button" data-focus="15" data-break="3">15 / 3</button>
+              <button type="button" class="button button-secondary timer-preset-button" data-focus="25" data-break="5">25 / 5</button>
+              <button type="button" class="button button-secondary timer-preset-button" data-focus="50" data-break="10">50 / 10</button>
+              <button type="button" class="button button-secondary timer-preset-button" data-focus="90" data-break="15">90 / 15</button>
+            </div>
+          </fieldset>
+          <p id="timer-settings-error" class="error-message" aria-live="polite"></p>
+        </form>
+
+        <p id="timer-mode-label" class="timer-mode-label">Focus session</p>
+        <div id="timer-display" class="timer-display" role="timer" aria-live="off">25:00</div>
+
+        <div id="timer-controls" class="timer-controls">
+          <button type="button" id="timer-start-button" class="button button-primary">Start</button>
+          <button type="button" id="timer-pause-button" class="button button-secondary">Pause</button>
+          <button type="button" id="timer-reset-button" class="button button-secondary">Reset</button>
+        </div>
+        <p id="timer-status-message" class="status-message" aria-live="polite">Ready to focus.</p>
+        <p id="timer-today-summary" class="timer-today-summary"></p>
+      </article>
+
+      <form id="study-log-form" class="study-log-form" novalidate>
+        <fieldset id="study-log-fieldset" class="form-fieldset">
+          <legend id="study-log-legend" class="form-legend">Studied without the timer? Add it here</legend>
+
+          <div class="form-group">
+            <label id="study-log-date-label" class="form-label" for="study-log-date-input">Date</label>
+            <input type="date" id="study-log-date-input" class="form-input" name="studyDate">
+          </div>
+
+          <div class="form-group">
+            <label id="study-log-minutes-label" class="form-label" for="study-log-minutes-input">Minutes studied</label>
+            <input type="number" id="study-log-minutes-input" class="form-input" name="studyMinutes" min="1" max="720" inputmode="numeric" placeholder="e.g. 45">
+          </div>
+
+          <button type="submit" id="study-log-submit-button" class="button button-primary">Add study time</button>
+        </fieldset>
+        <p id="study-log-error" class="error-message" aria-live="polite"></p>
+        <p id="study-log-status" class="status-message" aria-live="polite"></p>
+      </form>
+
+      <div id="study-calendar" class="study-calendar">
+        <h3 id="study-calendar-heading" class="agenda-heading">Study progress this month</h3>
+
+        <div id="study-toolbar" class="study-toolbar">
+          <div id="study-month-nav" class="study-month-nav">
+            <button type="button" id="study-prev-button" class="button button-secondary" aria-label="Previous month">&lsaquo;</button>
+            <strong id="study-month-title" class="study-month-title" aria-live="polite"></strong>
+            <button type="button" id="study-next-button" class="button button-secondary" aria-label="Next month">&rsaquo;</button>
+            <button type="button" id="study-today-button" class="button button-secondary">This month</button>
+          </div>
+
+          <div class="form-group study-target-group">
+            <label id="study-target-label" class="form-label" for="study-target-input">Daily target (minutes)</label>
+            <input type="number" id="study-target-input" class="form-input" name="dailyTarget" min="1" max="1440" inputmode="numeric">
+          </div>
+        </div>
+        <p id="study-target-error" class="error-message" aria-live="polite"></p>
+
+        <div id="study-grid" class="month-grid study-grid"></div>
+
+        <div id="heat-legend" class="heat-legend" aria-hidden="true">
+          <span>Less</span>
+          <span class="legend-swatch heat-0"></span>
+          <span class="legend-swatch heat-1"></span>
+          <span class="legend-swatch heat-2"></span>
+          <span class="legend-swatch heat-3"></span>
+          <span class="legend-swatch heat-4"></span>
+          <span>More (target reached)</span>
+        </div>
+
+        <div id="study-stats" class="goal-counters study-stats">
+          <p class="counter-item">Total studied <strong id="stat-total" class="counter-value">0 min</strong></p>
+          <p class="counter-item">Days studied <strong id="stat-days" class="counter-value">0</strong></p>
+          <p class="counter-item">Average per study day <strong id="stat-average" class="counter-value">0 min</strong></p>
+          <p class="counter-item">Best day <strong id="stat-best" class="counter-value">-</strong></p>
+          <p class="counter-item">Focus sessions <strong id="stat-sessions" class="counter-value">0</strong></p>
+          <p class="counter-item">Current streak <strong id="stat-streak" class="counter-value">0 days</strong></p>
+        </div>
+
+        <h4 id="study-bars-heading" class="agenda-heading">Minutes studied each day</h4>
+        <div id="study-bars" class="study-bars"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================
+       BLOCK 10: SITE FOOTER
+       ========================================================== -->
+  <footer id="site-footer" class="site-footer">
+    <p id="footer-text" class="footer-text">CSE326 Internet Programming | Personal Reading &amp; Learning Tracker | 2026</p>
+  </footer>
+
+  <!-- ==========================================================
+       BLOCK 11: HTML TEMPLATES (hidden blueprints)
+       JavaScript will clone these to create cards and list items
+       ========================================================== -->
+
+  <!-- Template: one resource card with page progress slider -->
+  <template id="resource-card-template">
+    <article class="resource-card" data-resource-id="">
+      <header class="resource-card-header">
+        <h4 class="resource-title"></h4>
+        <span class="resource-media-badge"></span>
+      </header>
+
+      <p class="resource-creator"></p>
+      <p class="resource-due">Due: <time class="resource-due-date"></time></p>
+
+      <div class="resource-progress-area">
+        <label class="progress-slider-label">
+          Progress
+          <input type="range" class="progress-slider" min="0" max="100" value="0">
+        </label>
+        <output class="progress-output">0 / 0</output>
+      </div>
+
+      <!-- Shown only for YouTube videos / playlists that have details -->
+      <div class="youtube-area" hidden>
+        <img class="yt-thumb" alt="Video thumbnail" loading="lazy">
+        <div class="yt-single" hidden>
+          <label class="yt-time-label">
+            Stopped at (mm:ss)
+            <input type="text" class="form-input yt-time-input" placeholder="e.g. 12:30">
+          </label>
+          <button type="button" class="button button-secondary yt-save-time">Save time</button>
+        </div>
+        <ul class="yt-items" hidden></ul>
+        <output class="yt-text"></output>
+        <p class="error-message yt-message" aria-live="polite"></p>
+        <a class="yt-resume-link" href="#" target="_blank" rel="noopener">Resume on YouTube</a>
+      </div>
+
+      <div class="resource-card-actions">
+        <label class="move-shelf-label">
+          Move to
+          <select class="move-shelf-select">
+            <option value="reading">Reading</option>
+            <option value="completed">Completed</option>
+            <option value="wishlist">Wishlist</option>
+          </select>
+        </label>
+        <button type="button" class="button button-danger delete-resource-button">Delete</button>
+      </div>
+    </article>
+  </template>
+
+  <!-- Template: one saved quote with citation and timestamp -->
+  <template id="quote-item-template">
+    <li class="quote-item" data-quote-id="">
+      <blockquote class="quote-body">
+        <p class="quote-text"></p>
+        <footer class="quote-meta">
+          <cite class="quote-citation"></cite>
+          <span class="quote-location"></span>
+          <span class="quote-resource-name"></span>
+          <time class="quote-timestamp"></time>
+        </footer>
+      </blockquote>
+      <button type="button" class="button button-danger delete-quote-button">Delete</button>
+    </li>
+  </template>
+
+  <!-- Template: one calendar deadline -->
+  <template id="deadline-item-template">
+    <li class="deadline-item" data-deadline-id="">
+      <span class="event-type-badge"></span>
+      <strong class="deadline-title"></strong>
+      <time class="deadline-date"></time>
+      <span class="deadline-resource"></span>
+      <span class="deadline-countdown"></span>
+      <button type="button" class="button button-danger delete-deadline-button">Delete</button>
+    </li>
+  </template>
+
+  <!-- Template: one checklist task with priority and checkbox -->
+  <template id="task-item-template">
+    <li class="task-item" data-task-id="">
+      <input type="checkbox" class="task-checkbox">
+      <span class="task-title"></span>
+      <time class="task-date"></time>
+      <span class="task-countdown"></span>
+      <span class="task-priority-badge"></span>
+      <button type="button" class="button button-danger delete-task-button">Delete</button>
+    </li>
+  </template>
+
+  <!-- Template: one timetable block -->
+  <template id="timetable-item-template">
+    <li class="timetable-item" data-block-id="">
+      <time class="timetable-time"></time>
+      <strong class="timetable-title"></strong>
+      <span class="timetable-category-badge"></span>
+      <span class="timetable-duration"></span>
+      <button type="button" class="button button-danger delete-timetable-button">Delete</button>
+    </li>
+  </template>
+
+  <!-- JavaScript file (will be created in the JavaScript step) -->
+  <script>
+"use strict";
+
+/* ==========================================================
+   PART 1: DATA (state), STORAGE AND HELPER FUNCTIONS
+   ========================================================== */
+const STORAGE_KEY = "readingTrackerData";
+const MEDIA = { book: "Physical Book", pdf: "PDF", youtube: "YouTube Playlist", newspaper: "Newspaper", leetcode: "LeetCode Set" };
+const UNITS = { book: "pages", pdf: "pages", youtube: "videos", newspaper: "issues", leetcode: "problems" };
+const SHELVES = ["reading", "completed", "wishlist"];
+// OPTIONAL: paste a free YouTube Data API key between the quotes to auto-load video length and playlist videos.
+const YOUTUBE_API_KEY = "";
+let pendingYT = null;   // YouTube details fetched for the form, waiting to be saved with the resource
+
+// "state" is the single object that holds ALL the data of the app.
+let state = { goal: 0, resources: [], quotes: [], deadlines: [], tasks: [], notes: "",
+  timetable: [], study: {}, sessions: {}, timerSettings: { focus: 25, rest: 5 }, studyTarget: 120 };
+let currentFilter = "all";
+
+const $ = (id) => document.getElementById(id);               // short name for getElementById
+const setMessage = (id, text) => { $(id).textContent = text; }; // show / clear a message
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved) state = Object.assign(state, saved);
+  } catch (error) { /* storage blocked or empty: start fresh */ }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (error) { /* ignore */ }
+}
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+function todayMidnight() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+function daysUntil(dateText) {                                // negative number = date is in the past
+  return Math.round((new Date(dateText + "T00:00:00") - todayMidnight()) / 86400000);
+}
+function percentOf(resource) { return Math.round((resource.current / resource.total) * 100); }
+function progressText(resource, current) {
+  return current + " / " + resource.total + " " + UNITS[resource.media] + " (" + Math.round((current / resource.total) * 100) + "%)";
+}
+function findResource(id) { return state.resources.find((r) => r.id === id); }
+
+/* ---------- YouTube helper functions ---------- */
+function parseYouTube(link) {                                 // returns { videoId, playlistId } or null
+  let url;
+  try { url = new URL(link.trim()); } catch (error) { return null; }
+  const host = url.hostname.replace("www.", "");
+  const playlistId = url.searchParams.get("list") || "";
+  let videoId = "";
+  if (host === "youtu.be") videoId = url.pathname.slice(1);
+  else if (host === "youtube.com" || host === "m.youtube.com") {
+    if (url.pathname === "/watch") videoId = url.searchParams.get("v") || "";
+    else if (url.pathname.startsWith("/shorts/")) videoId = url.pathname.split("/")[2] || "";
+  } else return null;
+  if (playlistId) videoId = "";                               // a link with ?list= is treated as a playlist
+  if (!videoId && !playlistId) return null;
+  return { videoId, playlistId };
+}
+function parseTime(text) {                                    // "12:30" or "1:05:00" -> seconds, else null
+  const parts = text.trim().split(":");
+  if (parts.length > 3 || parts.some((p) => !/^\d+$/.test(p))) return null;
+  const numbers = parts.map(Number);
+  if (numbers.slice(1).some((n) => n > 59)) return null;
+  return numbers.reduce((total, n) => total * 60 + n, 0);
+}
+function formatTime(seconds) {                                // seconds -> "12:30" or "1:05:00"
+  const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = seconds % 60;
+  const two = (n) => String(n).padStart(2, "0");
+  return h > 0 ? h + ":" + two(m) + ":" + two(s) : m + ":" + two(s);
+}
+function isoToSeconds(iso) {                                  // "PT1H2M3S" -> 3723
+  const match = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/.exec(iso) || [];
+  return (Number(match[1]) || 0) * 3600 + (Number(match[2]) || 0) * 60 + (Number(match[3]) || 0);
+}
+async function youtubeApi(path) {                             // asks the YouTube Data API for JSON
+  const response = await fetch("https://www.googleapis.com/youtube/v3/" + path + "&key=" + YOUTUBE_API_KEY);
+  if (!response.ok) throw new Error("YouTube API error " + response.status);
+  return response.json();
+}
+function setAllWatched(resource, watched) {                   // mark every video / the whole video done or not
+  if (resource.items) resource.items.forEach((item) => { item.done = watched; });
+  else if (resource.durationSec) resource.watchedSec = watched ? resource.durationSec : 0;
+}
+function syncShelf(resource, started) {                       // move the card to the right shelf
+  if (resource.current >= resource.total) resource.shelf = "completed";
+  else if (resource.shelf === "completed" || (started && resource.shelf === "wishlist")) resource.shelf = "reading";
+}
+
+/* ==========================================================
+   PART 2: ANNUAL GOAL DASHBOARD
+   ========================================================== */
+function renderGoal() {
+  const done = state.resources.filter((r) => r.shelf === "completed").length;
+  const goal = state.goal;
+  const percent = goal > 0 ? Math.min(100, Math.round((done / goal) * 100)) : 0;
+  $("goal-target-count").textContent = goal;
+  $("goal-completed-count").textContent = done;
+  $("goal-remaining-count").textContent = Math.max(goal - done, 0);
+  $("goal-progress-bar").value = percent;
+  $("goal-progress-percent").textContent = percent + "%";
+  $("goal-status-message").textContent = goal === 0 ? "No goal set yet."
+    : done >= goal ? "Goal achieved! Great work."
+    : "Keep going: " + (goal - done) + " more to reach your goal.";
+}
+
+$("goal-form").addEventListener("submit", (event) => {
+  event.preventDefault();                                     // stop the page from reloading
+  const text = $("goal-input").value.trim();
+  const number = Number(text);
+  if (text === "") { setMessage("goal-error-message", "Please enter a goal number."); return; }
+  if (!Number.isInteger(number) || number < 1 || number > 1000) {
+    setMessage("goal-error-message", "Goal must be a whole number from 1 to 1000."); return;
+  }
+  state.goal = number; saveState();
+  setMessage("goal-error-message", ""); renderGoal();
+});
+$("goal-reset-button").addEventListener("click", () => {
+  state.goal = 0; $("goal-input").value = "";
+  saveState(); setMessage("goal-error-message", ""); renderGoal();
+});
+
+/* ==========================================================
+   PART 3: ADD RESOURCE FORM (with validation)
+   ========================================================== */
+$("resource-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const title = $("resource-title-input").value.trim();
+  const media = $("resource-media-select").value;
+  const creator = $("resource-creator-input").value.trim();
+  const shelf = $("resource-shelf-select").value;
+  let total = Number($("resource-total-input").value);
+  let current = Number($("resource-current-input").value || 0);
+  const due = $("resource-due-input").value;
+
+  if (title.length < 2) return setMessage("resource-error-message", "Title must be at least 2 characters.");
+  if (media === "") return setMessage("resource-error-message", "Please select a media type.");
+  if (creator.length < 2) return setMessage("resource-error-message", "Please enter the author or creator.");
+  if (!Number.isInteger(total) || total < 1) return setMessage("resource-error-message", "Total units must be a whole number of at least 1.");
+  if (!Number.isInteger(current) || current < 0 || current > total) return setMessage("resource-error-message", "Current progress must be between 0 and the total units.");
+  if (state.resources.some((r) => r.title.toLowerCase() === title.toLowerCase() && r.media === media))
+    return setMessage("resource-error-message", "This resource is already in your library.");
+
+  let extra = {};                                             // YouTube details, if the link was fetched
+  if (media === "youtube" && pendingYT) {
+    extra = Object.assign({}, pendingYT);
+    const typed = $("resource-duration-input").value.trim();
+    if (typed !== "") {
+      const seconds = parseTime(typed);
+      if (seconds === null || seconds < 1) return setMessage("resource-error-message", "Video length must look like 12:30 or 1:05:00.");
+      extra.durationSec = seconds;
+    }
+    if (extra.items) total = extra.items.length;              // playlist: one unit per video
+    else if (extra.videoId && extra.durationSec > 0) total = 1; // single video: tracked by timestamp
+    if (extra.items || extra.durationSec > 0) current = 0;
+  }
+  if (shelf === "completed") current = total;                 // finished means 100%
+  if (shelf === "wishlist") current = 0;                      // not started yet
+  const resource = Object.assign({ id: newId(), title, media, creator, shelf, total, current, due, watchedSec: 0 }, extra);
+  setAllWatched(resource, shelf === "completed");
+  state.resources.push(resource);
+  saveState(); setMessage("resource-error-message", "");
+  $("resource-form").reset();
+  renderAll();
+});
+
+/* ---------- Fetch YouTube details (paste link -> auto-fill) ---------- */
+$("resource-fetch-button").addEventListener("click", async () => {
+  const link = $("resource-link-input").value.trim();
+  const info = parseYouTube(link);
+  if (!info) return setMessage("resource-link-message", "Please paste a valid YouTube video or playlist link.");
+  pendingYT = { link, videoId: info.videoId, playlistId: info.playlistId, durationSec: 0 };
+  $("resource-media-select").value = "youtube";
+  setMessage("resource-link-message", "Fetching details...");
+  try {
+    let title = "", creator = "";
+    if (YOUTUBE_API_KEY) {                                    // full details through the YouTube Data API
+      if (info.playlistId) {
+        const meta = await youtubeApi("playlists?part=snippet&id=" + info.playlistId);
+        title = meta.items[0].snippet.title; creator = meta.items[0].snippet.channelTitle;
+        const items = []; let token = "";
+        for (let page = 0; page < 4; page++) {                // up to 200 videos (50 per page)
+          const data = await youtubeApi("playlistItems?part=snippet&maxResults=50&playlistId=" + info.playlistId + (token ? "&pageToken=" + token : ""));
+          data.items.forEach((entry) => {
+            const s = entry.snippet;
+            if (s.resourceId && s.title !== "Private video" && s.title !== "Deleted video") items.push({ id: s.resourceId.videoId, title: s.title, done: false });
+          });
+          token = data.nextPageToken;
+          if (!token) break;
+        }
+        pendingYT.items = items;
+      } else {
+        const data = await youtubeApi("videos?part=snippet,contentDetails&id=" + info.videoId);
+        title = data.items[0].snippet.title; creator = data.items[0].snippet.channelTitle;
+        pendingYT.durationSec = isoToSeconds(data.items[0].contentDetails.duration);
+      }
+    } else {                                                  // no key: title and channel through oEmbed
+      const target = info.playlistId ? "https://www.youtube.com/playlist?list=" + info.playlistId : "https://www.youtube.com/watch?v=" + info.videoId;
+      let data;
+      try {                                                   // first choice: YouTube's own oEmbed
+        const response = await fetch("https://www.youtube.com/oembed?format=json&url=" + encodeURIComponent(target));
+        if (!response.ok) throw new Error("oEmbed error " + response.status);
+        data = await response.json();
+      } catch (firstError) {                                  // backup: noembed.com does the same job
+        console.warn("YouTube oEmbed failed, trying backup:", firstError);
+        const backup = await fetch("https://noembed.com/embed?url=" + encodeURIComponent(target));
+        data = await backup.json();
+        if (data.error) throw new Error(data.error);
+      }
+      title = data.title; creator = data.author_name;
+    }
+    $("resource-title-input").value = title;
+    $("resource-creator-input").value = creator;
+    $("resource-total-input").value = pendingYT.items ? pendingYT.items.length : info.playlistId ? "" : 1;
+    $("resource-current-input").value = 0;
+    if (pendingYT.durationSec) $("resource-duration-input").value = formatTime(pendingYT.durationSec);
+    setMessage("resource-link-message", info.playlistId && !pendingYT.items
+      ? "Details loaded. Enter the number of videos (add an API key to load the full playlist)."
+      : pendingYT.durationSec ? "Details loaded." : "Title and channel loaded. Enter the video length to track the timestamp.");
+  } catch (error) {
+    console.error("Fetch details failed:", error);            // press F12 > Console to see the real reason
+    setMessage("resource-link-message", "Could not fetch details automatically. Please fill the title and creator by hand.");
+  }
+});
+$("resource-link-input").addEventListener("input", () => { pendingYT = null; });   // new link = forget old details
+$("resource-form").addEventListener("reset", () => { pendingYT = null; setMessage("resource-link-message", ""); });
+
+/* ==========================================================
+   PART 4: VIRTUAL SHELVES (cards cloned from <template>)
+   ========================================================== */
+function buildResourceCard(resource) {
+  const node = $("resource-card-template").content.cloneNode(true);   // copy the hidden blueprint
+  node.querySelector(".resource-card").dataset.resourceId = resource.id;
+  node.querySelector(".resource-title").textContent = resource.title;
+  const badge = node.querySelector(".resource-media-badge");
+  badge.textContent = MEDIA[resource.media]; badge.classList.add("media-" + resource.media);
+  node.querySelector(".resource-creator").textContent = "By " + resource.creator;
+
+  const dueLine = node.querySelector(".resource-due");
+  if (resource.due) {
+    const time = node.querySelector(".resource-due-date");
+    time.textContent = resource.due; time.dateTime = resource.due;
+    if (resource.shelf !== "completed" && daysUntil(resource.due) < 0) dueLine.classList.add("overdue");
+  } else { dueLine.hidden = true; }
+
+  buildYouTubeArea(node, resource);
+
+  // Page progress slider: "input" fires while dragging, "change" fires on release
+  const slider = node.querySelector(".progress-slider");
+  const output = node.querySelector(".progress-output");
+  slider.value = percentOf(resource);
+  output.textContent = progressText(resource, resource.current);
+  slider.addEventListener("input", () => {
+    output.textContent = progressText(resource, Math.round((slider.value / 100) * resource.total));
+  });
+  slider.addEventListener("change", () => {
+    resource.current = Math.round((slider.value / 100) * resource.total);
+    if (resource.current >= resource.total) resource.shelf = "completed";          // auto-finish
+    else if (resource.shelf !== "reading") resource.shelf = "reading";              // auto-start
+    saveState(); renderAll();
+  });
+
+  const moveSelect = node.querySelector(".move-shelf-select");
+  moveSelect.value = resource.shelf;
+  moveSelect.addEventListener("change", () => {
+    resource.shelf = moveSelect.value;
+    if (resource.shelf === "completed") { resource.current = resource.total; setAllWatched(resource, true); }
+    else if (resource.shelf === "wishlist" || resource.current >= resource.total) { resource.current = 0; setAllWatched(resource, false); }
+    saveState(); renderAll();
+  });
+
+  node.querySelector(".delete-resource-button").addEventListener("click", () => {
+    if (!confirm("Delete \"" + resource.title + "\"? Saved quotes will be kept.")) return;
+    state.resources = state.resources.filter((r) => r.id !== resource.id);
+    saveState(); renderAll();
+  });
+  return node;
+}
+
+function buildYouTubeArea(node, resource) {                   // extra card section for YouTube videos / playlists
+  const isList = Array.isArray(resource.items) && resource.items.length > 0;
+  const isSingle = !isList && resource.videoId && !resource.playlistId && resource.durationSec > 0;
+  if (!isList && !isSingle) return;                           // other cards keep the normal slider
+  node.querySelector(".resource-progress-area").hidden = true;
+  node.querySelector(".youtube-area").hidden = false;
+  const thumb = node.querySelector(".yt-thumb");
+  thumb.src = "https://i.ytimg.com/vi/" + (isList ? resource.items[0].id : resource.videoId) + "/mqdefault.jpg";
+  thumb.addEventListener("error", () => { thumb.hidden = true; });
+  const text = node.querySelector(".yt-text"), message = node.querySelector(".yt-message"), link = node.querySelector(".yt-resume-link");
+
+  if (isSingle) {
+    node.querySelector(".yt-single").hidden = false;
+    const input = node.querySelector(".yt-time-input");
+    input.value = formatTime(resource.watchedSec);
+    const percent = Math.round((resource.watchedSec / resource.durationSec) * 100);
+    text.textContent = formatTime(resource.watchedSec) + " / " + formatTime(resource.durationSec) + " (" + percent + "%), " +
+      formatTime(resource.durationSec - resource.watchedSec) + " left";
+    link.href = "https://www.youtube.com/watch?v=" + resource.videoId + "&t=" + resource.watchedSec + "s";
+    node.querySelector(".yt-save-time").addEventListener("click", () => {
+      const seconds = parseTime(input.value);
+      if (seconds === null) { message.textContent = "Enter the time like 12:30 or 1:05:00."; return; }
+      if (seconds > resource.durationSec) { message.textContent = "Time cannot be longer than the video (" + formatTime(resource.durationSec) + ")."; return; }
+      resource.watchedSec = seconds;
+      resource.current = seconds >= resource.durationSec ? 1 : 0;
+      syncShelf(resource, seconds > 0); saveState(); renderAll();
+    });
+  } else {
+    const list = node.querySelector(".yt-items");
+    list.hidden = false;
+    resource.items.forEach((item) => {
+      const li = document.createElement("li");
+      li.className = "yt-item" + (item.done ? " done" : "");
+      const box = document.createElement("input");
+      box.type = "checkbox"; box.checked = item.done; box.setAttribute("aria-label", "Watched: " + item.title);
+      const name = document.createElement("span");
+      name.textContent = item.title;
+      box.addEventListener("change", () => {
+        item.done = box.checked;
+        resource.current = resource.items.filter((i) => i.done).length;
+        syncShelf(resource, resource.current > 0); saveState(); renderAll();
+      });
+      li.append(box, name); list.appendChild(li);
+    });
+    const next = resource.items.find((i) => !i.done) || resource.items[0];
+    text.textContent = progressText(resource, resource.current);
+    link.href = "https://www.youtube.com/watch?v=" + next.id + "&list=" + resource.playlistId;
+  }
+}
+
+function renderShelves() {
+  SHELVES.forEach((shelf) => {
+    const list = $(shelf + "-list");
+    list.innerHTML = "";
+    const items = state.resources.filter((r) => r.shelf === shelf);
+    items.forEach((r) => list.appendChild(buildResourceCard(r)));
+    $("shelf-" + shelf + "-count").textContent = items.length;
+    $(shelf + "-empty-message").hidden = items.length > 0;
+    $("shelf-" + shelf).hidden = !(currentFilter === "all" || currentFilter === shelf);
+  });
+}
+
+document.querySelectorAll(".filter-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    currentFilter = button.dataset.filter;
+    document.querySelectorAll(".filter-button").forEach((b) => b.classList.toggle("active", b === button));
+    renderShelves();
+  });
+});
+
+function fillResourceSelect(selectId) {                       // keeps option 0, rebuilds the rest
+  const select = $(selectId);
+  const previous = select.value;
+  select.length = 1;
+  state.resources.forEach((r) => {
+    const option = document.createElement("option");
+    option.value = r.id; option.textContent = r.title;
+    select.appendChild(option);
+  });
+  select.value = previous;
+}
+
+/* ==========================================================
+   PART 5: PERMANENT QUOTE LOG
+   ========================================================== */
+$("quote-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const resource = findResource($("quote-resource-select").value);
+  const text = $("quote-text-input").value.trim();
+  const citation = $("quote-citation-input").value.trim();
+  const location = $("quote-location-input").value.trim();
+  if (!resource) return setMessage("quote-error-message", "Please select a resource.");
+  if (text.length < 5) return setMessage("quote-error-message", "Quote must be at least 5 characters.");
+  if (citation === "") return setMessage("quote-error-message", "Please enter a citation.");
+  if (location === "") return setMessage("quote-error-message", "Please enter a page number or timestamp.");
+  state.quotes.unshift({ id: newId(), resourceTitle: resource.title, text, citation, location, savedAt: new Date().toLocaleString() });
+  saveState(); setMessage("quote-error-message", "");
+  $("quote-form").reset(); renderQuotes();
+});
+
+function renderQuotes() {
+  const list = $("quotes-list");
+  list.innerHTML = "";
+  state.quotes.forEach((q) => {
+    const node = $("quote-item-template").content.cloneNode(true);
+    node.querySelector(".quote-item").dataset.quoteId = q.id;
+    node.querySelector(".quote-text").textContent = "\u201C" + q.text + "\u201D";
+    node.querySelector(".quote-citation").textContent = q.citation;
+    node.querySelector(".quote-location").textContent = "@ " + q.location;
+    node.querySelector(".quote-resource-name").textContent = "from " + q.resourceTitle;
+    node.querySelector(".quote-timestamp").textContent = "saved " + q.savedAt;
+    node.querySelector(".delete-quote-button").addEventListener("click", () => {
+      state.quotes = state.quotes.filter((x) => x.id !== q.id);
+      saveState(); renderQuotes();
+    });
+    list.appendChild(node);
+  });
+  $("quotes-empty-message").hidden = state.quotes.length > 0;
+}
+
+/* ==========================================================
+   PART 6: DATE HELPERS + WALL CALENDAR + PENDING ASSIGNMENTS
+   One calendar shows holidays, exams, assignment deadlines,
+   study deadlines and the due dates of your resources.
+   ========================================================== */
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const EVENT_TYPES = { holiday: "Holiday", exam: "Exam", assignment: "Assignment", study: "Study deadline", resource: "Resource due" };
+const EVENT_ORDER = ["holiday", "exam", "assignment", "study", "resource"];
+// Holidays that fall on the same date every year. Festivals that move (Diwali, Eid, Holi...) are added by the student.
+const FIXED_HOLIDAYS = [
+  ["01-01", "New Year's Day"], ["01-26", "Republic Day"], ["04-14", "Ambedkar Jayanti"],
+  ["08-15", "Independence Day"], ["10-02", "Gandhi Jayanti"], ["12-25", "Christmas"]
+];
+
+const pad2 = (n) => String(n).padStart(2, "0");
+function dateKey(year, month, day) { return year + "-" + pad2(month + 1) + "-" + pad2(day); }   // month is 0-11
+function todayKey() { const t = new Date(); return dateKey(t.getFullYear(), t.getMonth(), t.getDate()); }
+function prettyDate(key) {
+  return new Date(key + "T00:00:00").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+function formatStudy(seconds) {                                // 5100 -> "1 h 25 min"
+  const total = Math.floor(seconds / 60);
+  if (seconds > 0 && total === 0) return "under 1 min";
+  const h = Math.floor(total / 60), m = total % 60;
+  return h && m ? h + " h " + m + " min" : h ? h + " h" : m + " min";
+}
+function shortStudy(seconds) {                                 // 5100 -> "1h 25m" (for small calendar cells)
+  const total = Math.floor(seconds / 60), h = Math.floor(total / 60), m = total % 60;
+  return h && m ? h + "h " + m + "m" : h ? h + "h" : m + "m";
+}
+function buildMonthGrid(container, year, month, makeCell) {   // shared by the wall calendar and the study calendar
+  container.innerHTML = "";
+  WEEKDAY_SHORT.forEach((name, i) => {
+    const head = document.createElement("div");
+    head.className = "month-weekday" + (i === 0 ? " sunday" : "");
+    head.textContent = name;
+    container.appendChild(head);
+  });
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let i = 0; i < firstWeekday; i++) {
+    const blank = document.createElement("div");
+    blank.className = "month-blank";
+    container.appendChild(blank);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    container.appendChild(makeCell(day, dateKey(year, month, day), (firstWeekday + day - 1) % 7));
+  }
+}
+function normalizeState() {                                    // makes old saved data work with the new features
+  if (!state.study || typeof state.study !== "object") state.study = {};
+  if (!state.sessions || typeof state.sessions !== "object") state.sessions = {};
+  if (!Array.isArray(state.timetable)) state.timetable = [];
+  const t = state.timerSettings || {};
+  state.timerSettings = {
+    focus: Number.isInteger(t.focus) && t.focus >= 1 && t.focus <= 600 ? t.focus : 25,
+    rest: Number.isInteger(t.rest) && t.rest >= 1 && t.rest <= 120 ? t.rest : 5
+  };
+  if (!Number.isInteger(state.studyTarget) || state.studyTarget < 1 || state.studyTarget > 1440) state.studyTarget = 120;
+}
+
+let calView = { year: new Date().getFullYear(), month: new Date().getMonth() };
+let selectedDate = todayKey();
+
+function eventsOn(key) {                                       // everything that happens on one date
+  const list = [];
+  FIXED_HOLIDAYS.forEach(([monthDay, name]) => {
+    if (key.slice(5) === monthDay) list.push({ type: "holiday", title: name });
+  });
+  state.deadlines.forEach((d) => { if (d.date === key) list.push({ type: d.type || "study", title: d.title, kind: "deadline", id: d.id }); });
+  state.tasks.forEach((t) => { if (t.date === key) list.push({ type: "assignment", title: t.title, done: t.done, kind: "task", id: t.id }); });
+  state.resources.forEach((r) => { if (r.due === key && r.shelf !== "completed") list.push({ type: "resource", title: "Finish: " + r.title }); });
+  return list.sort((a, b) => EVENT_ORDER.indexOf(a.type) - EVENT_ORDER.indexOf(b.type));
+}
+
+function renderCalendar() {
+  $("cal-month-title").textContent = MONTH_NAMES[calView.month] + " " + calView.year;
+  const today = todayKey();
+  buildMonthGrid($("cal-grid"), calView.year, calView.month, (day, key, weekday) => {
+    const events = eventsOn(key);
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.dataset.date = key;
+    cell.className = "cal-day" + (weekday === 0 ? " is-sunday" : "") + (key === today ? " today" : "") +
+      (key === selectedDate ? " selected" : "") + (events.some((e) => e.type === "holiday") ? " has-holiday" : "");
+    cell.setAttribute("aria-pressed", String(key === selectedDate));
+    cell.setAttribute("aria-label", prettyDate(key) + (events.length
+      ? ": " + events.map((e) => EVENT_TYPES[e.type] + " - " + e.title).join(", ") : ": nothing planned"));
+
+    const number = document.createElement("span");
+    number.className = "cal-day-number";
+    number.textContent = day;
+    cell.appendChild(number);
+
+    const chips = document.createElement("span");
+    chips.className = "cal-chips";
+    events.slice(0, 3).forEach((e) => {
+      const chip = document.createElement("span");
+      chip.className = "cal-chip type-" + e.type + (e.done ? " chip-done" : "");
+      chip.textContent = e.title;
+      chips.appendChild(chip);
+    });
+    if (events.length > 3) {
+      const more = document.createElement("span");
+      more.className = "cal-more";
+      more.textContent = "+" + (events.length - 3) + " more";
+      chips.appendChild(more);
+    }
+    cell.appendChild(chips);
+
+    cell.addEventListener("click", () => {                     // select the day without rebuilding the grid (keeps keyboard focus)
+      selectedDate = key;
+      document.querySelectorAll("#cal-grid .cal-day").forEach((c) => {
+        const on = c.dataset.date === key;
+        c.classList.toggle("selected", on);
+        c.setAttribute("aria-pressed", String(on));
+      });
+      renderDayPanel();
+    });
+    return cell;
+  });
+}
+
+function renderDayPanel() {
+  $("day-panel-title").textContent = prettyDate(selectedDate);
+  const studied = state.study[selectedDate] || 0;
+  $("day-panel-study").textContent = studied >= 60 ? "Studied: " + formatStudy(studied) : "No study time logged this day.";
+  const list = $("day-panel-events");
+  list.innerHTML = "";
+  const events = eventsOn(selectedDate);
+  events.forEach((e) => {
+    const li = document.createElement("li");
+    li.className = "day-event";
+    const badge = document.createElement("span");
+    badge.className = "event-type-badge type-" + e.type;
+    badge.textContent = EVENT_TYPES[e.type];
+    const text = document.createElement("span");
+    text.className = "day-event-title" + (e.done ? " done" : "");
+    text.textContent = e.title;
+    li.append(badge, text);
+    if (e.kind) {                                              // built-in holidays and resource dates cannot be removed here
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "button button-danger";
+      remove.textContent = "Remove";
+      remove.setAttribute("aria-label", "Remove " + e.title);
+      remove.addEventListener("click", () => removeEvent(e));
+      li.appendChild(remove);
+    }
+    list.appendChild(li);
+  });
+  $("day-panel-empty").hidden = events.length > 0;
+}
+
+function removeEvent(e) {
+  if (e.kind === "task") state.tasks = state.tasks.filter((x) => x.id !== e.id);
+  else state.deadlines = state.deadlines.filter((x) => x.id !== e.id);
+  saveState(); renderPlanner();
+}
+function renderPlanner() { renderCalendar(); renderDayPanel(); renderDeadlines(); renderTasks(); }
+
+function showCalendarMonth(year, month) {                      // go to a month and keep a sensible selected day
+  calView = { year, month };
+  const prefix = year + "-" + pad2(month + 1);
+  if (!selectedDate.startsWith(prefix)) selectedDate = todayKey().startsWith(prefix) ? todayKey() : prefix + "-01";
+  renderCalendar(); renderDayPanel();
+}
+function stepCalendar(delta) {
+  const d = new Date(calView.year, calView.month + delta, 1);
+  showCalendarMonth(d.getFullYear(), d.getMonth());
+}
+$("cal-prev-button").addEventListener("click", () => stepCalendar(-1));
+$("cal-next-button").addEventListener("click", () => stepCalendar(1));
+$("cal-today-button").addEventListener("click", () => {
+  const t = new Date();
+  selectedDate = todayKey();
+  showCalendarMonth(t.getFullYear(), t.getMonth());
+});
+$("day-panel-add-button").addEventListener("click", () => {
+  $("event-date-input").value = selectedDate;
+  $("event-title-input").focus();
+});
+
+/* ---------- Add form: assignment, exam, holiday or study deadline ---------- */
+function updateEventFormFields() {
+  const type = $("event-type-select").value;
+  $("event-priority-group").hidden = type !== "assignment";
+  $("event-resource-group").hidden = type !== "study";
+}
+$("event-type-select").addEventListener("change", updateEventFormFields);
+
+$("event-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  setMessage("event-status-message", "");
+  const title = $("event-title-input").value.trim();
+  const type = $("event-type-select").value;
+  const date = $("event-date-input").value;
+  if (title.length < 3) return setMessage("event-error-message", "Title must be at least 3 characters.");
+  if (date === "") return setMessage("event-error-message", "Please choose a date.");
+  if ((type === "assignment" || type === "study") && daysUntil(date) < 0)
+    return setMessage("event-error-message", "A deadline cannot be in the past.");
+  const duplicate = type === "assignment"
+    ? state.tasks.some((t) => t.date === date && t.title.toLowerCase() === title.toLowerCase())
+    : state.deadlines.some((d) => d.date === date && (d.type || "study") === type && d.title.toLowerCase() === title.toLowerCase());
+  if (duplicate) return setMessage("event-error-message", "You already added this on that date.");
+
+  if (type === "assignment") {
+    state.tasks.push({ id: newId(), title, priority: $("event-priority-select").value, done: false, date });
+  } else {
+    const resource = type === "study" ? findResource($("deadline-resource-select").value) : null;
+    state.deadlines.push({ id: newId(), title, date, type, resourceTitle: resource ? resource.title : "" });
+  }
+  saveState();
+  setMessage("event-error-message", "");
+  setMessage("event-status-message", EVENT_TYPES[type] + " added on " + prettyDate(date) + ".");
+  $("event-title-input").value = "";
+  selectedDate = date;
+  showCalendarMonth(Number(date.slice(0, 4)), Number(date.slice(5, 7)) - 1);
+  renderDeadlines(); renderTasks();
+});
+
+/* ---------- Exams, holidays and study deadlines list ---------- */
+function renderDeadlines() {
+  const list = $("deadline-list");
+  list.innerHTML = "";
+  [...state.deadlines].sort((a, b) => a.date.localeCompare(b.date)).forEach((d) => {
+    const type = d.type || "study";
+    const isDeadline = type === "study";
+    const node = $("deadline-item-template").content.cloneNode(true);
+    const item = node.querySelector(".deadline-item");
+    const days = daysUntil(d.date);
+    item.dataset.deadlineId = d.id;
+    if (days < 0) item.classList.add(isDeadline ? "overdue" : "past");
+    const badge = node.querySelector(".event-type-badge");
+    badge.textContent = EVENT_TYPES[type];
+    badge.classList.add("type-" + type);
+    node.querySelector(".deadline-title").textContent = d.title;
+    const time = node.querySelector(".deadline-date");
+    time.textContent = d.date; time.dateTime = d.date;
+    node.querySelector(".deadline-resource").textContent = d.resourceTitle ? "Resource: " + d.resourceTitle : "";
+    node.querySelector(".deadline-countdown").textContent =
+      days < 0 ? (isDeadline ? "Overdue by " + Math.abs(days) + " day(s)" : Math.abs(days) + " day(s) ago")
+      : days === 0 ? (isDeadline ? "Due today" : "Today")
+      : days + " day(s) " + (isDeadline ? "left" : "to go");
+    node.querySelector(".delete-deadline-button").addEventListener("click", () => {
+      state.deadlines = state.deadlines.filter((x) => x.id !== d.id);
+      saveState(); renderPlanner();
+    });
+    list.appendChild(node);
+  });
+  $("deadline-empty-message").hidden = state.deadlines.length > 0;
+}
+
+/* ---------- Pending assignments checklist (each one also sits on the calendar) ---------- */
+function renderTasks() {
+  const order = { high: 0, medium: 1, low: 2 };
+  const list = $("task-list");
+  list.innerHTML = "";
+  // pending first, then earliest deadline, then priority; tasks without a date go last
+  [...state.tasks].sort((a, b) => a.done - b.done || (a.date || "9999").localeCompare(b.date || "9999") || order[a.priority] - order[b.priority]).forEach((t) => {
+    const node = $("task-item-template").content.cloneNode(true);
+    const item = node.querySelector(".task-item");
+    item.dataset.taskId = t.id; item.classList.toggle("done", t.done);
+    node.querySelector(".task-title").textContent = t.title;
+    const dateText = node.querySelector(".task-date");
+    const countdown = node.querySelector(".task-countdown");
+    if (t.date) {
+      dateText.textContent = t.date; dateText.dateTime = t.date;
+      const days = daysUntil(t.date);
+      if (!t.done) {
+        countdown.textContent = days < 0 ? "Overdue by " + Math.abs(days) + " day(s)" : days === 0 ? "Due today" : days + " day(s) left";
+        if (days < 0) item.classList.add("overdue");
+      }
+    } else {
+      dateText.textContent = "No deadline";
+    }
+    const badge = node.querySelector(".task-priority-badge");
+    badge.textContent = t.priority; badge.classList.add("priority-" + t.priority);
+    const box = node.querySelector(".task-checkbox");
+    box.checked = t.done;
+    box.setAttribute("aria-label", "Mark done: " + t.title);
+    box.addEventListener("change", () => { t.done = box.checked; saveState(); renderPlanner(); });
+    node.querySelector(".delete-task-button").addEventListener("click", () => {
+      state.tasks = state.tasks.filter((x) => x.id !== t.id);
+      saveState(); renderPlanner();
+    });
+    list.appendChild(node);
+  });
+  $("task-pending-count").textContent = state.tasks.filter((t) => !t.done).length;
+  $("task-empty-message").hidden = state.tasks.length > 0;
+}
+
+/* ==========================================================
+   PART 7: DAILY TIMETABLE (blocks per weekday)
+   ========================================================== */
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const TAB_ORDER = [1, 2, 3, 4, 5, 6, 0];                       // tabs run Monday to Sunday
+const CATEGORIES = { class: "Class", study: "Study", break: "Break", meal: "Meal", exercise: "Exercise", other: "Other" };
+let timetableDay = new Date().getDay();
+
+function toMinutes(time) { const [h, m] = time.split(":").map(Number); return h * 60 + m; }
+function clock12(time) {                                       // "14:30" -> "2:30 pm"
+  const [h, m] = time.split(":").map(Number);
+  return ((h % 12) || 12) + ":" + pad2(m) + (h < 12 ? " am" : " pm");
+}
+function durationText(minutes) {
+  const h = Math.floor(minutes / 60), m = minutes % 60;
+  return h && m ? h + " h " + m + " min" : h ? h + " h" : m + " min";
+}
+function syncDayChecks() {                                     // tick only the day that is open
+  document.querySelectorAll(".timetable-day-check").forEach((box) => { box.checked = Number(box.value) === timetableDay; });
+}
+
+$("timetable-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const fail = (text) => setMessage("timetable-error-message", text);
+  const title = $("timetable-title-input").value.trim();
+  const category = $("timetable-category-select").value;
+  const start = $("timetable-start-input").value;
+  const end = $("timetable-end-input").value;
+  const days = [...document.querySelectorAll(".timetable-day-check:checked")].map((box) => Number(box.value));
+  if (title.length < 2) return fail("Activity name must be at least 2 characters.");
+  if (start === "" || end === "") return fail("Please choose both a start time and an end time.");
+  if (toMinutes(end) <= toMinutes(start)) return fail("The end time must be after the start time.");
+  if (days.length === 0) return fail("Choose at least one day.");
+  for (const day of days) {
+    const clash = state.timetable.find((b) => b.day === day && toMinutes(b.start) < toMinutes(end) && toMinutes(start) < toMinutes(b.end));
+    if (clash) return fail("This overlaps with \"" + clash.title + "\" (" + clock12(clash.start) + " to " + clock12(clash.end) + ") on " + DAY_NAMES[day] + ".");
+  }
+  days.forEach((day) => state.timetable.push({ id: newId(), day, title, category, start, end }));
+  saveState(); fail("");
+  $("timetable-title-input").value = "";
+  $("timetable-start-input").value = end;                      // the next block usually starts where this one ends
+  $("timetable-end-input").value = "";
+  if (!days.includes(timetableDay)) timetableDay = days[0];
+  renderTimetable();
+});
+
+$("timetable-clear-button").addEventListener("click", () => {
+  if (!confirm("Remove every block on " + DAY_NAMES[timetableDay] + "?")) return;
+  state.timetable = state.timetable.filter((b) => b.day !== timetableDay);
+  saveState(); renderTimetable();
+});
+
+function renderTimetable() {
+  const todayDay = new Date().getDay();
+  const tabs = $("timetable-tabs");
+  tabs.innerHTML = "";
+  TAB_ORDER.forEach((day) => {
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "button filter-button" + (day === timetableDay ? " active" : "");
+    tab.textContent = DAY_NAMES[day].slice(0, 3) + (day === todayDay ? " (today)" : "");
+    tab.setAttribute("aria-pressed", String(day === timetableDay));
+    tab.addEventListener("click", () => {
+      timetableDay = day; syncDayChecks(); renderTimetable();
+      tabs.querySelector(".active").focus();                   // keep keyboard focus after the redraw
+    });
+    tabs.appendChild(tab);
+  });
+
+  const isToday = timetableDay === todayDay;
+  const now = new Date(), nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const blocks = state.timetable.filter((b) => b.day === timetableDay).sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+  $("timetable-day-title").textContent = DAY_NAMES[timetableDay] + (isToday ? " (today)" : "");
+
+  const strip = $("timetable-strip");                          // 24-hour bar: 1440 minutes = 100% width
+  strip.innerHTML = "";
+  blocks.forEach((b) => {
+    const s = toMinutes(b.start), e = toMinutes(b.end);
+    const piece = document.createElement("span");
+    piece.className = "strip-block cat-" + b.category;
+    piece.style.left = (s / 14.4) + "%";
+    piece.style.width = ((e - s) / 14.4) + "%";
+    piece.title = b.title + " (" + clock12(b.start) + " to " + clock12(b.end) + ")";
+    strip.appendChild(piece);
+  });
+  if (isToday) {
+    const marker = document.createElement("span");
+    marker.className = "strip-now";
+    marker.style.left = (nowMinutes / 14.4) + "%";
+    marker.title = "Now";
+    strip.appendChild(marker);
+  }
+
+  const list = $("timetable-list");
+  list.innerHTML = "";
+  let studyMinutes = 0, classMinutes = 0;
+  blocks.forEach((b) => {
+    const s = toMinutes(b.start), e = toMinutes(b.end);
+    if (b.category === "study") studyMinutes += e - s;
+    if (b.category === "class") classMinutes += e - s;
+    const node = $("timetable-item-template").content.cloneNode(true);
+    const item = node.querySelector(".timetable-item");
+    item.dataset.blockId = b.id;
+    item.classList.add("cat-" + b.category);
+    if (isToday && nowMinutes >= s && nowMinutes < e) item.classList.add("now");
+    node.querySelector(".timetable-time").textContent = clock12(b.start) + " to " + clock12(b.end);
+    node.querySelector(".timetable-title").textContent = b.title;
+    node.querySelector(".timetable-category-badge").textContent = CATEGORIES[b.category];
+    node.querySelector(".timetable-duration").textContent = durationText(e - s);
+    node.querySelector(".delete-timetable-button").addEventListener("click", () => {
+      state.timetable = state.timetable.filter((x) => x.id !== b.id);
+      saveState(); renderTimetable();
+    });
+    list.appendChild(node);
+  });
+  $("timetable-summary").textContent = blocks.length
+    ? blocks.length + " block(s): " + durationText(classMinutes) + " of classes, " + durationText(studyMinutes) + " of planned study."
+    : "";
+  $("timetable-empty-message").textContent = "Nothing planned for " + DAY_NAMES[timetableDay] + " yet. Add a block above.";
+  $("timetable-empty-message").hidden = blocks.length > 0;
+  $("timetable-clear-button").hidden = blocks.length === 0;
+}
+setInterval(() => {                                            // move the "now" marker, but never steal focus while the student is typing
+  if (!$("timetable-section").contains(document.activeElement)) renderTimetable();
+}, 60000);
+
+/* ==========================================================
+   PART 8: ROUGH DRAFT NOTEPAD
+   ========================================================== */
+$("notepad-form").addEventListener("submit", (event) => event.preventDefault());
+$("notepad-save-button").addEventListener("click", () => {
+  state.notes = $("notepad-textarea").value;
+  saveState(); setMessage("notepad-status-message", "Notes saved at " + new Date().toLocaleTimeString() + ".");
+});
+$("notepad-clear-button").addEventListener("click", () => {
+  if (!confirm("Clear all notes?")) return;
+  $("notepad-textarea").value = ""; state.notes = "";
+  saveState(); setMessage("notepad-status-message", "Notes cleared.");
+});
+
+/* ==========================================================
+   PART 9: POMODORO TIMER (any length) + STUDY PROGRESS CALENDAR
+   The timer counts real clock time, so it stays correct even when
+   the browser slows down a background tab. Every focus second that
+   really runs is added to today's total.
+   ========================================================== */
+const BASE_TITLE = document.title;
+let timerMode = "focus", timeLeft = 0, timerId = null;
+let endAt = 0, lastTick = 0, lastSave = 0;                    // clock times in milliseconds
+let studyView = { year: new Date().getFullYear(), month: new Date().getMonth() };
+
+const focusSeconds = () => state.timerSettings.focus * 60;
+const breakSeconds = () => state.timerSettings.rest * 60;
+
+function drawTimer() {
+  const text = String(Math.floor(timeLeft / 60)).padStart(2, "0") + ":" + String(timeLeft % 60).padStart(2, "0");
+  $("timer-display").textContent = text;
+  if (timerId !== null) document.title = text + " " + (timerMode === "focus" ? "Focus" : "Break") + " | " + BASE_TITLE;
+}
+function setTimerInputsDisabled(disabled) {                    // settings cannot change while the clock runs
+  $("timer-settings-form").querySelectorAll("input, button").forEach((el) => { el.disabled = disabled; });
+}
+function stopTimer() {
+  clearInterval(timerId); timerId = null;
+  setTimerInputsDisabled(false);
+  document.title = BASE_TITLE;
+}
+function saveTimerProgress() { saveState(); lastSave = Date.now(); }
+function addStudySeconds(seconds) {
+  if (seconds <= 0) return;
+  const key = todayKey();
+  state.study[key] = (state.study[key] || 0) + seconds;
+}
+function updateTodaySummary() {
+  const key = todayKey();
+  const seconds = state.study[key] || 0, sessions = state.sessions[key] || 0;
+  $("timer-today-summary").textContent = "Studied today: " + (seconds >= 60 ? formatStudy(seconds) : "0 min") +
+    ". Focus sessions finished: " + sessions + ".";
+}
+function refreshStudyViews() { renderStudy(); renderDayPanel(); updateTodaySummary(); }
+
+function finishSession() {
+  stopTimer();
+  if (timerMode === "focus") {
+    const key = todayKey();
+    state.sessions[key] = (state.sessions[key] || 0) + 1;
+    timerMode = "break"; timeLeft = breakSeconds();
+    $("timer-mode-label").textContent = "Break time";
+    setMessage("timer-status-message", "Focus session complete! Press Start for a " + state.timerSettings.rest + " minute break.");
+  } else {
+    timerMode = "focus"; timeLeft = focusSeconds();
+    $("timer-mode-label").textContent = "Focus session";
+    setMessage("timer-status-message", "Break over. Ready to focus again.");
+  }
+  saveTimerProgress(); drawTimer(); refreshStudyViews();
+}
+function tick() {
+  const now = Date.now();
+  if (timerMode === "focus") {
+    const counted = Math.min(now, endAt) - lastTick;           // never count past the end of the session
+    addStudySeconds(Math.min(Math.max(counted, 0) / 1000, 120));
+  }
+  lastTick = now;
+  timeLeft = Math.max(0, Math.ceil((endAt - now) / 1000));
+  if (timeLeft <= 0) { finishSession(); return; }
+  drawTimer(); updateTodaySummary();
+  if (now - lastSave > 5000) { saveTimerProgress(); renderStudy(); }
+}
+
+$("timer-start-button").addEventListener("click", () => {
+  if (timerId !== null) return;                                // already running: do nothing
+  const now = Date.now();
+  endAt = now + timeLeft * 1000; lastTick = now; lastSave = now;
+  timerId = setInterval(tick, 500);
+  setTimerInputsDisabled(true);
+  setMessage("timer-status-message", timerMode === "focus" ? "Stay focused..." : "Relax and rest...");
+});
+$("timer-pause-button").addEventListener("click", () => {
+  if (timerId === null) return;
+  tick();                                                      // count the seconds since the last tick first
+  if (timerId === null) return;                                // the session happened to end right now
+  stopTimer(); saveTimerProgress(); refreshStudyViews();
+  setMessage("timer-status-message", "Timer paused.");
+});
+$("timer-reset-button").addEventListener("click", () => {
+  if (timerId !== null) tick();
+  stopTimer(); timerMode = "focus"; timeLeft = focusSeconds();
+  $("timer-mode-label").textContent = "Focus session";
+  saveTimerProgress(); drawTimer(); refreshStudyViews();
+  setMessage("timer-status-message", "Timer reset. Ready to focus.");
+});
+
+/* ---------- Custom session length ---------- */
+$("timer-settings-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const focus = Number($("timer-focus-input").value);
+  const rest = Number($("timer-break-input").value);
+  if (!Number.isInteger(focus) || focus < 1 || focus > 600)
+    return setMessage("timer-settings-error", "Focus time must be a whole number from 1 to 600 minutes.");
+  if (!Number.isInteger(rest) || rest < 1 || rest > 120)
+    return setMessage("timer-settings-error", "Break time must be a whole number from 1 to 120 minutes.");
+  state.timerSettings = { focus, rest };
+  timerMode = "focus"; timeLeft = focusSeconds();
+  $("timer-mode-label").textContent = "Focus session";
+  saveState(); drawTimer();
+  setMessage("timer-settings-error", "");
+  setMessage("timer-status-message", "Timer set: " + focus + " min focus, " + rest + " min break.");
+});
+document.querySelectorAll(".timer-preset-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    $("timer-focus-input").value = button.dataset.focus;
+    $("timer-break-input").value = button.dataset.break;
+    $("timer-settings-form").requestSubmit();
+  });
+});
+
+/* ---------- Add study time by hand ---------- */
+$("study-log-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  setMessage("study-log-status", "");
+  const date = $("study-log-date-input").value;
+  const minutes = Number($("study-log-minutes-input").value);
+  if (date === "") return setMessage("study-log-error", "Please choose a date.");
+  if (date > todayKey()) return setMessage("study-log-error", "You cannot log study time for a future date.");
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 720)
+    return setMessage("study-log-error", "Minutes must be a whole number from 1 to 720.");
+  state.study[date] = (state.study[date] || 0) + minutes * 60;
+  saveState();
+  setMessage("study-log-error", "");
+  setMessage("study-log-status", "Added " + minutes + " min on " + prettyDate(date) + ".");
+  $("study-log-minutes-input").value = "";
+  studyView = { year: Number(date.slice(0, 4)), month: Number(date.slice(5, 7)) - 1 };
+  refreshStudyViews();
+});
+
+/* ---------- Study progress calendar ---------- */
+function studyLevel(seconds) {                                 // 0 = nothing, 4 = daily target reached
+  const target = state.studyTarget * 60;
+  if (seconds < 60) return 0;
+  if (seconds >= target) return 4;
+  if (seconds >= target * 0.5) return 3;
+  return seconds >= target * 0.25 ? 2 : 1;
+}
+function currentStreak() {                                     // days in a row with study time, ending today (or yesterday)
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  const keyOf = () => dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+  if ((state.study[keyOf()] || 0) < 60) d.setDate(d.getDate() - 1);
+  let streak = 0;
+  while ((state.study[keyOf()] || 0) >= 60) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+
+function renderStudy() {
+  const { year, month } = studyView;
+  const today = todayKey();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  $("study-month-title").textContent = MONTH_NAMES[month] + " " + year;
+
+  buildMonthGrid($("study-grid"), year, month, (day, key) => {
+    const seconds = state.study[key] || 0;
+    const cell = document.createElement("div");
+    cell.className = "study-day heat-" + studyLevel(seconds) + (key === today ? " today" : "") + (key > today ? " future" : "");
+    cell.setAttribute("role", "img");
+    cell.setAttribute("aria-label", prettyDate(key) + ": " + (seconds >= 60 ? formatStudy(seconds) + " studied" : "no study logged"));
+    const number = document.createElement("span");
+    number.className = "study-day-number";
+    number.textContent = day;
+    const time = document.createElement("span");
+    time.className = "study-day-time";
+    time.textContent = seconds >= 60 ? shortStudy(seconds) : "";
+    cell.append(number, time);
+    return cell;
+  });
+
+  let total = 0, daysStudied = 0, sessions = 0, best = { day: 0, seconds: 0 };
+  const perDay = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const key = dateKey(year, month, day);
+    const seconds = state.study[key] || 0;
+    perDay.push(seconds);
+    total += seconds;
+    sessions += state.sessions[key] || 0;
+    if (seconds >= 60) daysStudied++;
+    if (seconds > best.seconds) best = { day, seconds };
+  }
+  $("stat-total").textContent = formatStudy(total);
+  $("stat-days").textContent = daysStudied + " of " + daysInMonth;
+  $("stat-average").textContent = daysStudied ? formatStudy(total / daysStudied) : "0 min";
+  $("stat-best").textContent = best.seconds >= 60 ? best.day + " " + MONTH_NAMES[month].slice(0, 3) + ": " + formatStudy(best.seconds) : "-";
+  $("stat-sessions").textContent = sessions;
+  const streak = currentStreak();
+  $("stat-streak").textContent = streak + (streak === 1 ? " day" : " days");
+
+  // bar chart: one bar per day, dashed line = daily target
+  const target = state.studyTarget * 60;
+  const scale = Math.max(target, ...perDay);
+  const plot = document.createElement("div");
+  plot.className = "study-bars-plot";
+  const labels = document.createElement("div");
+  labels.className = "study-bars-labels";
+  perDay.forEach((seconds, i) => {
+    const day = i + 1;
+    const col = document.createElement("div");
+    col.className = "study-bar-col";
+    col.title = day + " " + MONTH_NAMES[month].slice(0, 3) + ": " + (seconds >= 60 ? formatStudy(seconds) : "no study logged");
+    if (seconds >= 60) {
+      const bar = document.createElement("div");
+      bar.className = "study-bar";
+      bar.style.height = Math.max(3, (seconds / scale) * 100) + "%";
+      col.appendChild(bar);
+    }
+    plot.appendChild(col);
+    const label = document.createElement("span");
+    label.className = "study-bar-label";
+    label.textContent = day === 1 || day % 5 === 0 ? day : "";
+    labels.appendChild(label);
+  });
+  const line = document.createElement("div");
+  line.className = "study-target-line";
+  line.style.bottom = (target / scale) * 100 + "%";
+  line.title = "Daily target: " + state.studyTarget + " min";
+  plot.appendChild(line);
+  const bars = $("study-bars");
+  bars.innerHTML = "";
+  bars.append(plot, labels);
+  bars.setAttribute("role", "img");
+  bars.setAttribute("aria-label", "Bar chart of minutes studied each day in " + MONTH_NAMES[month] + " " + year + ". Total " + formatStudy(total) + ".");
+}
+
+function stepStudyMonth(delta) {
+  const d = new Date(studyView.year, studyView.month + delta, 1);
+  studyView = { year: d.getFullYear(), month: d.getMonth() };
+  renderStudy();
+}
+$("study-prev-button").addEventListener("click", () => stepStudyMonth(-1));
+$("study-next-button").addEventListener("click", () => stepStudyMonth(1));
+$("study-today-button").addEventListener("click", () => {
+  const t = new Date();
+  studyView = { year: t.getFullYear(), month: t.getMonth() };
+  renderStudy();
+});
+$("study-target-input").addEventListener("change", () => {
+  const minutes = Number($("study-target-input").value);
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 1440) {
+    setMessage("study-target-error", "Daily target must be a whole number from 1 to 1440 minutes.");
+    $("study-target-input").value = state.studyTarget;
+    return;
+  }
+  setMessage("study-target-error", "");
+  state.studyTarget = minutes; saveState(); renderStudy();
+});
+window.addEventListener("pagehide", () => { if (timerId !== null) { tick(); saveState(); } });   // do not lose the last seconds
+
+/* ==========================================================
+   PART 10: START THE APP
+   ========================================================== */
+function renderAll() {
+  renderShelves();
+  fillResourceSelect("quote-resource-select");
+  fillResourceSelect("deadline-resource-select");
+  renderGoal();
+  renderPlanner();
+}
+
+loadState(); normalizeState();
+$("goal-input").value = state.goal > 0 ? state.goal : "";
+$("notepad-textarea").value = state.notes;
+$("timer-focus-input").value = state.timerSettings.focus;
+$("timer-break-input").value = state.timerSettings.rest;
+$("study-target-input").value = state.studyTarget;
+$("study-log-date-input").value = todayKey();
+$("study-log-date-input").max = todayKey();
+$("event-date-input").value = todayKey();
+timeLeft = focusSeconds();
+updateEventFormFields(); syncDayChecks();
+renderAll(); renderQuotes(); renderTimetable(); renderStudy(); drawTimer(); updateTodaySummary();
+
+</script>
+</body>
+</html>
