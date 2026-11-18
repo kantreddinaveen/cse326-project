@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudySphere - Reading Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ========== HEADER AND NAVIGATION ========== -->
+  <header>
+    <h1>StudySphere</h1>
+    <p>Track your books, PDFs, newspapers and LeetCode problem sets in one place.</p>
+    <nav>
+      <a href="#goals">Goals</a>
+      <a href="#add">Add Resource</a>
+      <a href="#shelves">Shelves</a>
+      <a href="#quotes">Quotes</a>
+      <a href="#assignments">Assignments</a>
+      <a href="#notes">Notepad</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ========== 1. ANNUAL GOAL ========== -->
+    <section id="goals">
+      <h2>Annual Goal 2026</h2>
+
+      <form id="goal-form">
+        <label for="goal-input">How many resources do you want to complete this year?</label>
+        <input type="number" id="goal-input" placeholder="e.g. 24">
+        <button type="submit">Save Goal</button>
+        <button type="button" id="goal-clear">Clear Goal</button>
+      </form>
+      <p class="error" id="goal-error"></p>
+
+      <div class="counters">
+        <p>Goal: <strong id="goal-count">0</strong></p>
+        <p>Completed: <strong id="goal-completed">0</strong></p>
+        <p>Remaining: <strong id="goal-remaining">0</strong></p>
+      </div>
+
+      <progress id="goal-bar" value="0" max="100"></progress>
+      <span id="goal-percent">0%</span>
+    </section>
+
+    <!-- ========== 2. ADD RESOURCE ========== -->
+    <section id="add">
+      <h2>Add a Resource</h2>
+
+      <form id="resource-form">
+        <div class="form-grid">
+          <div>
+            <label for="title">Title</label>
+            <input type="text" id="title" placeholder="e.g. Clean Code">
+          </div>
+
+          <div>
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="">Select type</option>
+              <option value="book">Physical Book</option>
+              <option value="pdf">PDF</option>
+              <option value="newspaper">Newspaper</option>
+              <option value="leetcode">LeetCode Problem Set</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="author">Author / Creator</label>
+            <input type="text" id="author" placeholder="Author or publisher">
+          </div>
+
+          <div>
+            <label for="shelf">Shelf</label>
+            <select id="shelf">
+              <option value="reading">Reading</option>
+              <option value="completed">Completed</option>
+              <option value="wishlist">Wishlist</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="total">Total (pages / issues / problems)</label>
+            <input type="number" id="total" placeholder="e.g. 350">
+          </div>
+
+          <div>
+            <label for="current">Done so far</label>
+            <input type="number" id="current" value="0">
+          </div>
+        </div>
+
+        <button type="submit">Add Resource</button>
+      </form>
+      <p class="error" id="resource-error"></p>
+    </section>
+
+    <!-- ========== 3. VIRTUAL SHELVES ========== -->
+    <section id="shelves">
+      <h2>Virtual Shelves</h2>
+
+      <!-- Filter buttons -->
+      <div class="filters">
+        <button class="filter active" data-filter="all">All</button>
+        <button class="filter" data-filter="reading">Reading</button>
+        <button class="filter" data-filter="completed">Completed</button>
+        <button class="filter" data-filter="wishlist">Wishlist</button>
+      </div>
+
+      <div class="shelves-grid">
+        <div class="shelf" id="shelf-reading">
+          <h3>Reading <span id="reading-count" class="badge">0</span></h3>
+          <div id="reading-list"></div>
+        </div>
+
+        <div class="shelf" id="shelf-completed">
+          <h3>Completed <span id="completed-count" class="badge">0</span></h3>
+          <div id="completed-list"></div>
+        </div>
+
+        <div class="shelf" id="shelf-wishlist">
+          <h3>Wishlist <span id="wishlist-count" class="badge">0</span></h3>
+          <div id="wishlist-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 4. QUOTE LOG ========== -->
+    <section id="quotes">
+      <h2>Quote Log</h2>
+
+      <form id="quote-form">
+        <div class="form-grid">
+          <div>
+            <label for="quote-resource">From resource</label>
+            <select id="quote-resource">
+              <option value="">Select a resource</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="quote-text">Quote</label>
+            <textarea id="quote-text" rows="3" placeholder="Type the quote here"></textarea>
+          </div>
+
+          <div>
+            <label for="quote-page">Page number</label>
+            <input type="text" id="quote-page" placeholder="e.g. 45">
+          </div>
+        </div>
+
+        <button type="submit">Save Quote</button>
+      </form>
+      <p class="error" id="quote-error"></p>
+
+      <div id="quote-list"></div>
+    </section>
+
+    <!-- ========== 5. PENDING ASSIGNMENTS ========== -->
+    <section id="assignments">
+      <h2>Pending Assignments</h2>
+
+      <form id="task-form">
+        <div class="form-grid">
+          <div>
+            <label for="task-title">Assignment</label>
+            <input type="text" id="task-title" placeholder="e.g. DBMS assignment 2">
+          </div>
+
+          <div>
+            <label for="task-date">Deadline</label>
+            <input type="date" id="task-date">
+          </div>
+
+          <div>
+            <label for="task-priority">Priority</label>
+            <select id="task-priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit">Add Assignment</button>
+      </form>
+      <p class="error" id="task-error"></p>
+
+      <p>Still to do: <strong id="task-pending">0</strong></p>
+      <div id="task-list"></div>
+    </section>
+
+    <!-- ========== 6. NOTEPAD ========== -->
+    <section id="notes">
+      <h2>Notepad</h2>
+      <textarea id="notes-text" rows="8" placeholder="Write your rough notes here..."></textarea>
+      <button type="button" id="notes-save">Save Notes</button>
+      <button type="button" id="notes-clear">Clear Notes</button>
+      <p class="success" id="notes-message"></p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>StudySphere - CSE326 Internet Programming Project</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
